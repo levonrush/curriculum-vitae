@@ -311,12 +311,23 @@ class CLITestCase(unittest.TestCase):
         (self.root / "Makefile").write_text("clean:\n\t@rm -rf build\n", encoding="utf-8")
         (self.root / "build").mkdir()
         (self.root / "build/generated.pdf").write_bytes(b"pdf")
+        (self.root / "document.aux").write_text("temporary", encoding="utf-8")
+        (self.root / "variants/document.synctex.gz").write_bytes(b"temporary")
+        minted = self.root / "src/_minted-document"
+        minted.mkdir()
+        (minted / "cache.pygtex").write_text("temporary", encoding="utf-8")
         logo = self.root / ".vendor/logos/keep.pdf"
         logo.parent.mkdir(parents=True, exist_ok=True)
         logo.write_bytes(b"logo")
+        protected_aux = self.root / ".vendor/logos/keep.aux"
+        protected_aux.write_text("vendor data", encoding="utf-8")
         self.assertEqual(self.run_app("clean"), 0)
         self.assertFalse((self.root / "build").exists())
+        self.assertFalse((self.root / "document.aux").exists())
+        self.assertFalse((self.root / "variants/document.synctex.gz").exists())
+        self.assertFalse(minted.exists())
         self.assertEqual(logo.read_bytes(), b"logo")
+        self.assertEqual(protected_aux.read_text(encoding="utf-8"), "vendor data")
 
     def test_public_main_turns_expected_failure_into_exit_two(self) -> None:
         stderr = io.StringIO()

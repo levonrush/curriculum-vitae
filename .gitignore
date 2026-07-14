@@ -5,14 +5,54 @@ build/
 # but the marks themselves are not redistributed from this repository.
 .vendor/
 
-# TeX intermediates outside build/ (defensive)
+# TeX intermediates outside build/ (defensive). Normal builds put these under
+# build/, but editors and one-off LaTeX commands sometimes leave them beside
+# the source file.
 *.aux
+*.acn
+*.acr
+*.alg
+*.bbl
+*.bcf
+*.blg
+*.brf
+*.dvi
 *.fdb_latexmk
 *.fls
+*.glg
+*.glo
+*.gls
+*.idx
+*.ilg
+*.ind
+*.ist
+*.loa
+*.lof
+*.lol
+*.lot
 *.log
+*.maf
+*.mtc
+*.mtc0
+*.nav
+*.nlo
+*.nls
 *.out
-*.xdv
+*.pdfsync
+*.run.xml
+*.snm
+*.spl
+*.synctex
 *.synctex.gz
+*.toc
+*.upa
+*.upb
+*.vrb
+*.xdv
+*.xmpi
+texput.log
+_minted-*/
+_markdown_*/
 
 # Python/editor noise
 __pycache__/

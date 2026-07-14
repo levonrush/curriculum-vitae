@@ -62,6 +62,53 @@ PLACEHOLDER_RE = re.compile(
 )
 SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 SOURCE_DATE_EPOCH = "1704067200"
+LATEX_AUXILIARY_GLOBS = (
+    "*.acn",
+    "*.acr",
+    "*.alg",
+    "*.aux",
+    "*.bbl",
+    "*.bcf",
+    "*.blg",
+    "*.brf",
+    "*.dvi",
+    "*.fdb_latexmk",
+    "*.fls",
+    "*.glg",
+    "*.glo",
+    "*.gls",
+    "*.idx",
+    "*.ilg",
+    "*.ind",
+    "*.ist",
+    "*.loa",
+    "*.lof",
+    "*.lol",
+    "*.lot",
+    "*.log",
+    "*.maf",
+    "*.mtc",
+    "*.mtc0",
+    "*.nav",
+    "*.nlo",
+    "*.nls",
+    "*.out",
+    "*.pdfsync",
+    "*.run.xml",
+    "*.snm",
+    "*.spl",
+    "*.synctex",
+    "*.synctex.gz",
+    "*.toc",
+    "*.upa",
+    "*.upb",
+    "*.vrb",
+    "*.xdv",
+    "*.xmpi",
+    "texput.log",
+)
+LATEX_AUXILIARY_DIRECTORY_GLOBS = ("_minted-*", "_markdown_*")
+CLEAN_PROTECTED_DIRECTORIES = frozenset({".git", ".vendor"})
 
 
 class CliError(RuntimeError):
@@ -169,7 +216,10 @@ class CVApplication:
         subs.add_parser("list", help="list variants, applications, outputs, and freshness")
         check = subs.add_parser("check", help="run CLI, PDF, ATS, and reproducibility checks")
         check.add_argument("--verbose", action="store_true")
-        clean = subs.add_parser("clean", help="remove generated files, preserving downloaded assets")
+        clean = subs.add_parser(
+            "clean",
+            help="remove build output and stray LaTeX files, preserving downloaded assets",
+        )
         clean.add_argument("--verbose", action="store_true")
 
         assets = subs.add_parser("assets", help="inspect or fetch official logo assets")
@@ -789,10 +839,47 @@ class CVApplication:
         self._say("All checks passed.")
         return 0
 
+    def _remove_stray_latex_files(self) -> int:
+        """Remove editor/one-off TeX debris without touching Git or vendor assets."""
+        files: set[Path] = set()
+        directories: set[Path] = set()
+
+        def protected(path: Path) -> bool:
+            relative = path.relative_to(self.root)
+            return bool(relative.parts and relative.parts[0] in CLEAN_PROTECTED_DIRECTORIES)
+
+        for pattern in LATEX_AUXILIARY_GLOBS:
+            files.update(
+                path
+                for path in self.root.rglob(pattern)
+                if not protected(path) and (path.is_file() or path.is_symlink())
+            )
+        for pattern in LATEX_AUXILIARY_DIRECTORY_GLOBS:
+            directories.update(
+                path
+                for path in self.root.rglob(pattern)
+                if not protected(path) and path.is_dir()
+            )
+
+        removed = 0
+        for path in sorted(files):
+            path.unlink(missing_ok=True)
+            removed += 1
+        for path in sorted(directories, key=lambda item: len(item.parts), reverse=True):
+            if path.exists():
+                shutil.rmtree(path)
+                removed += 1
+        return removed
+
     def cmd_clean(self, args: argparse.Namespace) -> int:
         self._say("Cleaning generated files …")
         self._run_make(["clean"], verbose=args.verbose)
-        self._say("Generated files removed; downloaded logo assets were preserved.")
+        stray_count = self._remove_stray_latex_files()
+        noun = "item" if stray_count == 1 else "items"
+        self._say(
+            f"Generated files removed, including {stray_count} stray LaTeX {noun}; "
+            "downloaded logo assets were preserved."
+        )
         return 0
 
     def cmd_help(self, args: argparse.Namespace) -> int:

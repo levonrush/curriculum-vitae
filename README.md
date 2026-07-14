@@ -36,7 +36,7 @@ cv view all                      # open build/ in Finder
 cv list                          # variants, applications, and build state
 cv doctor                        # local prerequisite and asset report
 cv check                         # compile and run all quality gates
-cv clean                         # remove generated output, preserve assets
+cv clean                         # remove build/ and stray TeX files; preserve assets
 ```
 
 Run `cv help` or `cv <command> --help` for complete usage. Add `--verbose` to a
