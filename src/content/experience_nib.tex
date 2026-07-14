@@ -1,5 +1,9 @@
+\newcommand{\NibCompanyHeading}{%
+  \EmployerHeader{\NibLogo}{nib Health Funds}%
+}
+
 \newcommand{\NibLeadHeading}{%
-  \RoleWithLogo{Lead Data Scientist}{nib Health Funds}{Machine learning}{September 2022--January 2024}{\NibLogo}%
+  \EmployerRole{Lead Data Scientist}{Machine learning}{September 2022--January 2024}%
 }
 
 \newcommand{\NibLeadRole}{%
@@ -23,7 +27,7 @@
 }
 
 \newcommand{\NibDigitalScientistRole}{%
-  \Role{Digital Data Scientist}{nib Health Funds}{Digital}{August 2019--August 2022}
+  \EmployerRole{Digital Data Scientist}{Digital}{August 2019--August 2022}
   \RoleContext{Led the small team responsible for behavioural data, analysis, experimentation, reporting and machine learning across nib's web and app assets.}
   \CVBulletsStart
     \item Led a small team responsible for digital behavioural data, analysis, experimentation, reporting and machine learning; grew the team from one person to three.
@@ -34,7 +38,7 @@
 }
 
 \newcommand{\NibDigitalAnalystRole}{%
-  \Role{Digital Analyst}{nib Health Funds}{Digital}{November 2015--July 2019}
+  \EmployerRole{Digital Analyst}{Digital}{November 2015--July 2019}
   \RoleContext{Worked with UX designers and developers to understand acquisition and retention behaviour and improve the website through controlled experimentation.}
   \CVBulletsStart
     \item Designed and evaluated website experiments, helping develop the A/B testing practices used by the optimisation team.
@@ -44,7 +48,8 @@
 }
 
 \newcommand{\StudentInformationRole}{%
-  \RoleWithLogo{Student Information Assistant}{University of Newcastle}{Marketing and engagement}{March 2012--March 2015}{\UniversityLogo}
+  \EmployerHeader{\UniversityLogo}{University of Newcastle}%
+  \EmployerRole{Student Information Assistant}{Marketing and engagement}{March 2012--March 2015}
   \CVBulletsStart
     \item Evaluated marketing campaigns and combined survey, engagement and social-media data in automated reporting for university services.
     \item Organised promotional staff while maintaining a direct connection with the student body.
@@ -52,21 +57,23 @@
 }
 
 \newcommand{\NibExperienceStandard}{%
+  \NibCompanyHeading
   \NibLeadRole
   \RoleGap
   \NibDigitalScientistRole
   \RoleGap
   \NibDigitalAnalystRole
-  \RoleGap
+  \EmployerGap
   \StudentInformationRole
 }
 
 \newcommand{\NibExperiencePlatform}{%
+  \NibCompanyHeading
   \NibLeadRolePlatform
   \RoleGap
   \NibDigitalScientistRole
   \RoleGap
   \NibDigitalAnalystRole
-  \RoleGap
+  \EmployerGap
   \StudentInformationRole
 }

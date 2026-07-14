@@ -105,10 +105,10 @@ Confirm any required brand approval before external distribution. Use
 `cv build cv --no-logos` when a portal or recipient prefers a strictly text-only
 document.
 
-The marks are compact 5.5 mm-high accents beside the relevant organisation
-names rather than page headers. This requested inline treatment is below nib's
-and the University's published print minima. It is therefore a local layout
-preview, not a claim of brand compliance. The University's approved horizontal
+The marks are optically balanced at roughly 5 mm high in dedicated company
+headers above the relevant roles rather than page headers. This requested
+treatment is below nib's and the University's published print minima. It is
+therefore a local layout preview, not a claim of brand compliance. The University's approved horizontal
 artwork remains staff-gated, so the exact public square mark is used rather than
 a third-party recreation. See `THIRD_PARTY_NOTICES.md` before distributing a
 logo-enabled PDF.

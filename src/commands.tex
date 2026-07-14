@@ -52,28 +52,43 @@
 
 \newcommand{\Section}[1]{%
   \Needspace{3\baselineskip}
-  \vspace{4pt}
-  {\fontsize{9.7}{11.8}\selectfont\bfseries\color{SectionColour}\MakeUppercase{#1}\par}
+  \vspace{3pt}
+  {\fontsize{10.1}{12.2}\selectfont\bfseries\color{SectionColour}\MakeUppercase{#1}\par}
   \vspace{1.5pt}
   \textcolor{RuleColour}{\rule{\textwidth}{0.45pt}}\par
-  \vspace{4.2pt}
+  \vspace{4.5pt}
 }
 
-\newcommand{\ContentGap}{\par\addvspace{8pt}}
-\newcommand{\RoleGap}{\par\addvspace{11pt}}
+\newcommand{\ContentGap}{\par\addvspace{7pt}}
+\newcommand{\RoleGap}{\par\addvspace{8pt}}
+\newcommand{\EmployerGap}{\par\addvspace{12pt}}
 
-\newcommand{\RoleCore}[5]{%
+\newcommand{\Role}[4]{%
   \Needspace{4\baselineskip}
   {\fontsize{10.3}{12.5}\selectfont\bfseries #1\hfill
     \fontsize{9.7}{11.8}\selectfont\color{QuietColour}#4\par}
   \vspace{0.8pt}
-  {\fontsize{9.7}{11.8}\selectfont\color{SectionColour}#5#2%
+  {\fontsize{9.7}{11.8}\selectfont\color{SectionColour}#2%
     \ifstrempty{#3}{}{\enspace\textcolor{RuleColour}{|}\enspace #3}\par}
   \vspace{1pt}
 }
 
-\newcommand{\Role}[4]{\RoleCore{#1}{#2}{#3}{#4}{}}
-\newcommand{\RoleWithLogo}[5]{\RoleCore{#1}{#2}{#3}{#4}{#5}}
+\newcommand{\EmployerHeader}[2]{%
+  \Needspace{5\baselineskip}
+  {\fontsize{10.8}{13}\selectfont\bfseries\color{NameColour}#1#2\par}
+  \vspace{3pt}
+}
+
+\newcommand{\EmployerRole}[3]{%
+  \Needspace{4\baselineskip}
+  {\fontsize{10.2}{12.4}\selectfont\bfseries #1\hfill
+    \fontsize{9.7}{11.8}\selectfont\color{QuietColour}#3\par}
+  \ifstrempty{#2}{}{%
+    \vspace{0.5pt}%
+    {\fontsize{9.5}{11.5}\selectfont\color{SectionColour}#2\par}%
+  }%
+  \vspace{1pt}
+}
 
 \newcommand{\Degree}[3]{%
   \Needspace{2.5\baselineskip}
@@ -115,40 +130,32 @@
 }
 \newcommand{\CVBulletsEnd}{\end{list}}
 
-\newcommand{\OrganisationLogoHeight}{5.5mm}
-
-\newcommand{\InlineLogoImage}[1]{%
+\newcommand{\InlineLogoImage}[2]{%
   \ifcvlogos
     \IfFileExists{.vendor/logos/#1}{%
-      \raisebox{-1.75mm}[0pt][0pt]{%
-        \includegraphics[height=\OrganisationLogoHeight,keepaspectratio]{.vendor/logos/#1}}%
-      \nobreak\hspace{1.3mm}%
+      \raisebox{-1mm}{%
+        \includegraphics[height=#2,keepaspectratio]{.vendor/logos/#1}}%
+      \nobreak\hspace{1.4mm}%
     }{}%
   \fi
 }
 
-\newcommand{\InlineUniversityLogo}{%
+\newcommand{\InlineUniversityLogo}[1]{%
   \ifcvlogos
     \IfFileExists{.vendor/logos/university-newcastle.pdf}{%
-      \raisebox{-1.75mm}[0pt][0pt]{%
-        \includegraphics[height=\OrganisationLogoHeight,keepaspectratio]{.vendor/logos/university-newcastle.pdf}}%
-      \nobreak\hspace{1.3mm}%
+      \raisebox{-1mm}{%
+        \includegraphics[height=#1,keepaspectratio]{.vendor/logos/university-newcastle.pdf}}%
+      \nobreak\hspace{1.4mm}%
     }{%
       \IfFileExists{.vendor/logos/university-newcastle.png}{%
-        \raisebox{-1.75mm}[0pt][0pt]{%
-          \includegraphics[height=\OrganisationLogoHeight,keepaspectratio]{.vendor/logos/university-newcastle.png}}%
-        \nobreak\hspace{1.3mm}%
+        \raisebox{-1mm}{%
+          \includegraphics[height=#1,keepaspectratio]{.vendor/logos/university-newcastle.png}}%
+        \nobreak\hspace{1.4mm}%
       }{}%
     }%
   \fi
 }
 
-\newcommand{\HunterLogo}{\InlineLogoImage{hunter-water.png}}
-\newcommand{\NibLogo}{\InlineLogoImage{nib.pdf}}
-\newcommand{\UniversityLogo}{\InlineUniversityLogo}
-
-\newcommand{\LogoNotice}{%
-  \vfill
-  {\fontsize{6.8}{8.2}\selectfont\color{QuietColour}
-    Organisation marks are shown for identification only. \textcopyright{} Hunter Water Corporation; nib and University of Newcastle marks remain the property of their respective owners.\par}
-}
+\newcommand{\HunterLogo}{\InlineLogoImage{hunter-water.png}{5.3mm}}
+\newcommand{\NibLogo}{\InlineLogoImage{nib.pdf}{4.7mm}}
+\newcommand{\UniversityLogo}{\InlineUniversityLogo{5.3mm}}

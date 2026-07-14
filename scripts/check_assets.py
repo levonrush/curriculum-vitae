@@ -24,38 +24,33 @@ SHA256_RE = re.compile(r"[0-9a-f]{64}")
 
 EXPECTED_PLACEMENTS = {
     "hunter_water": {
-        "macro": "HunterLogo",
         "source": ROOT / "src" / "content" / "experience_hunter_water.tex",
-        "role": re.compile(
-            r"\\RoleWithLogo\{Lead Machine Learning Scientist\}"
-            r"\{Hunter Water\}\{Intelligent Networks\}"
-            r"\{August 2024--present\}\{\\HunterLogo\}"
+        "placement": re.compile(
+            r"\\EmployerHeader\{\\HunterLogo\}\{Hunter Water\}"
         ),
         "definition": re.compile(
-            r"\\newcommand\{\\HunterLogo\}\{\\InlineLogoImage\{hunter-water\.png\}\}"
+            r"\\newcommand\{\\HunterLogo\}\{\\InlineLogoImage"
+            r"\{hunter-water\.png\}\{([0-9.]+)mm\}\}"
         ),
     },
     "nib": {
-        "macro": "NibLogo",
         "source": ROOT / "src" / "content" / "experience_nib.tex",
-        "role": re.compile(
-            r"\\RoleWithLogo\{Lead Data Scientist\}\{nib Health Funds\}"
-            r"\{Machine learning\}\{September 2022--January 2024\}\{\\NibLogo\}"
+        "placement": re.compile(
+            r"\\EmployerHeader\{\\NibLogo\}\{nib Health Funds\}"
         ),
         "definition": re.compile(
-            r"\\newcommand\{\\NibLogo\}\{\\InlineLogoImage\{nib\.pdf\}\}"
+            r"\\newcommand\{\\NibLogo\}\{\\InlineLogoImage"
+            r"\{nib\.pdf\}\{([0-9.]+)mm\}\}"
         ),
     },
     "university_newcastle": {
-        "macro": "UniversityLogo",
         "source": ROOT / "src" / "content" / "experience_nib.tex",
-        "role": re.compile(
-            r"\\RoleWithLogo\{Student Information Assistant\}"
-            r"\{University of Newcastle\}\{Marketing and engagement\}"
-            r"\{March 2012--March 2015\}\{\\UniversityLogo\}"
+        "placement": re.compile(
+            r"\\EmployerHeader\{\\UniversityLogo\}\{University of Newcastle\}"
         ),
         "definition": re.compile(
-            r"\\newcommand\{\\UniversityLogo\}\{\\InlineUniversityLogo\}"
+            r"\\newcommand\{\\UniversityLogo\}\{\\InlineUniversityLogo"
+            r"\{([0-9.]+)mm\}\}"
         ),
     },
 }
@@ -342,39 +337,36 @@ def validate_tex_usage(records: list[dict[str, object]]) -> list[str]:
     errors: list[str] = []
     by_id = {str(record["id"]): record for record in records}
     commands = COMMANDS.read_text(encoding="utf-8")
-    height_match = re.search(
-        r"\\newcommand\{\\OrganisationLogoHeight\}\{([0-9.]+)mm\}", commands
-    )
-    if not height_match:
-        errors.append("commands.tex: compact organisation-logo height is not declared")
-        rendered_height = None
-    else:
-        rendered_height = float(height_match.group(1))
 
     for identifier, placement in EXPECTED_PLACEMENTS.items():
         record = by_id[identifier]
         expected_height = record.get("default_height_mm")
-        if (
-            rendered_height is not None
-            and isinstance(expected_height, (int, float))
-            and abs(rendered_height - float(expected_height)) > 0.01
-        ):
-            errors.append(
-                f"{identifier}: TeX height {rendered_height:g} mm differs from "
-                f"manifest height {float(expected_height):g} mm"
-            )
         definition = placement["definition"]
-        if not isinstance(definition, re.Pattern) or len(definition.findall(commands)) != 1:
+        matches = definition.findall(commands) if isinstance(definition, re.Pattern) else []
+        if len(matches) != 1:
             errors.append(f"commands.tex: {identifier} asset macro is missing or duplicated")
+        else:
+            rendered_height = float(matches[0])
+            if (
+                isinstance(expected_height, (int, float))
+                and abs(rendered_height - float(expected_height)) > 0.01
+            ):
+                errors.append(
+                    f"{identifier}: TeX height {rendered_height:g} mm differs from "
+                    f"manifest height {float(expected_height):g} mm"
+                )
         source = placement["source"]
         if not isinstance(source, Path):
             errors.append(f"{identifier}: placement source is invalid")
             continue
         content = source.read_text(encoding="utf-8")
-        role_pattern = placement["role"]
-        if not isinstance(role_pattern, re.Pattern) or len(role_pattern.findall(content)) != 1:
+        placement_pattern = placement["placement"]
+        if (
+            not isinstance(placement_pattern, re.Pattern)
+            or len(placement_pattern.findall(content)) != 1
+        ):
             errors.append(
-                f"{source.relative_to(ROOT)}: {identifier} must appear once beside its organisation"
+                f"{source.relative_to(ROOT)}: {identifier} must appear once in its company header"
             )
 
     for variant in sorted(VARIANTS.glob("*.tex")):
@@ -390,7 +382,7 @@ def validate_tex_usage(records: list[dict[str, object]]) -> list[str]:
 
     cover = (ROOT / "src" / "cover_letter.tex").read_text(encoding="utf-8")
     if re.search(
-        r"\\(?:InlineLogoImage|InlineUniversityLogo|HunterLogo|NibLogo|UniversityLogo|RoleWithLogo)\b",
+        r"\\(?:InlineLogoImage|InlineUniversityLogo|HunterLogo|NibLogo|UniversityLogo)\b",
         cover,
     ):
         errors.append("cover letter must not display former-employer or institution logos")
@@ -413,7 +405,7 @@ def main() -> int:
             print(f"FAIL {error}", file=sys.stderr)
         print(f"\n{len(errors)} asset validation error(s)", file=sys.stderr)
         return 1
-    print("PASS logo sources, checksums, colour, aspect ratios, and inline placement")
+    print("PASS logo sources, checksums, colour, aspect ratios, and company-header placement")
     return 0
 
 
