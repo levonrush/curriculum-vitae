@@ -54,9 +54,9 @@
   \Needspace{4\baselineskip}
   \vspace{9pt}
   {\fontsize{13}{15.5}\selectfont\bfseries\color{SectionColour}\MakeUppercase{#1}\par}
-  \vspace{2pt}
-  \textcolor{RuleColour}{\rule{\textwidth}{0.45pt}}\par
-  \vspace{6.5pt}
+  \vspace{5pt}
+  {\color{RuleColour}\hrule height 0.45pt}
+  \vspace{7pt}
 }
 
 \newcommand{\RoleGap}{\par\addvspace{7pt}}
@@ -72,10 +72,18 @@
   \vspace{1pt}
 }
 
+% Give logos and employer names the same visual centre, independent of each
+% asset's aspect ratio or baseline. Keeping this as its own row also protects
+% the role/date row below from long employer names.
+\newcommand{\CenteredInlineBox}[1]{%
+  \raisebox{\dimexpr .5\depth-.5\height\relax}{#1}%
+}
+
 \newcommand{\EmployerHeader}[2]{%
   \Needspace{5\baselineskip}
-  {\fontsize{11.5}{13.8}\selectfont\bfseries\color{NameColour}%
-    \mbox{#1\ifcvlogos\nobreak\hspace{1.7mm}#2\fi}\par}
+  {\fontsize{12.2}{14.5}\selectfont\bfseries\color{NameColour}%
+    \noindent\makebox[\linewidth][l]{%
+      \CenteredInlineBox{#1}\hfill\CenteredInlineBox{#2}}\par}
   \vspace{3.5pt}
 }
 

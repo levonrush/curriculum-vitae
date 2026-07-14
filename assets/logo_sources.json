@@ -51,7 +51,7 @@
       "minimum_width_mm": 25,
       "default_width_mm": 13.6853,
       "default_height_mm": 5.6,
-      "minimum_size_exception": "Compact identification in the company header is intentionally below the partner-toolkit print minimum; obtain approval or use the no-logo build for external distribution.",
+      "minimum_size_exception": "Compact identification in the company header is intentionally below the partner-toolkit print minimum; obtain approval before external distribution and do not distribute the generated CV when approval has not been obtained.",
       "official_asset": true,
       "redistribution": "Cached locally; nib requires approval of content using the toolkit before publication.",
       "copyright_notice": "nib name and logo are owned by nib Group.",
@@ -92,11 +92,11 @@
       "minimum_width_mm": 40,
       "default_width_mm": 6.3,
       "default_height_mm": 6.3,
-      "minimum_size_exception": "Compact identification in the University company header is intentionally below the published square-mark minimum; obtain approval or use the no-logo build for external distribution.",
+      "minimum_size_exception": "Compact identification in the University company header is intentionally below the published square-mark minimum; obtain approval before external distribution and do not distribute the generated CV when approval has not been obtained.",
       "official_asset": true,
       "redistribution": "Cached locally; the approved asset library is staff-gated and external use should be confirmed with the University.",
       "copyright_notice": "© The University of Newcastle",
-      "notes": "The public brand-identity guidance sets a 40 mm minimum for the square mark. The requested alternative/restricted-space horizontal artwork is only available through the staff-gated approved asset library, so no unauthoritative third-party substitute is cached. The live official asset was Cloudflare-protected during setup, so an Internet Archive capture dated 2026-07-04 is pinned. The optically balanced 6.3 mm company-header treatment is a documented compact-layout exception, not a claim of brand compliance; obtain approval or use the no-logo build before external distribution."
+      "notes": "The public brand-identity guidance sets a 40 mm minimum for the square mark. The requested alternative/restricted-space horizontal artwork is only available through the staff-gated approved asset library, so no unauthoritative third-party substitute is cached. The live official asset was Cloudflare-protected during setup, so an Internet Archive capture dated 2026-07-04 is pinned. The optically balanced 6.3 mm company-header treatment is a documented compact-layout exception, not a claim of brand compliance; obtain approval before external distribution and do not distribute the generated CV when approval has not been obtained."
     }
   ]
 }

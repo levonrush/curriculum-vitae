@@ -424,28 +424,6 @@ def make_proofs(path: Path, proof_dir: Path, result: Result) -> None:
     result.note(f"proofs written to {proof_dir.relative_to(ROOT)}")
 
 
-def compare_logo_pairs(paths: list[Path], results: dict[Path, Result]) -> None:
-    by_name = {path.name: path for path in paths}
-    for path in paths:
-        if "_No_Logos" in path.stem:
-            continue
-        no_logo_name = f"{path.stem}_No_Logos.pdf"
-        no_logo = by_name.get(no_logo_name)
-        if not no_logo:
-            continue
-        modes = (("default", None), ("raw", "-raw"), ("layout", "-layout"))
-        for mode_name, mode in modes:
-            if normalise_text(extract_text(path, mode)) != normalise_text(
-                extract_text(no_logo, mode)
-            ):
-                results[path].error(
-                    f"{mode_name} text differs from {no_logo.name}"
-                )
-                results[no_logo].error(
-                    f"{mode_name} text differs from {path.name}"
-                )
-
-
 def discover_paths(arguments: list[str]) -> list[Path]:
     if arguments:
         paths = [Path(item).expanduser().resolve() for item in arguments]
@@ -495,8 +473,6 @@ def main(argv: list[str] | None = None) -> int:
                 make_proofs(path, BUILD / "proof", result)
         except (OSError, RuntimeError) as error:
             result.error(str(error))
-
-    compare_logo_pairs(paths, results)
 
     error_count = 0
     for path, result in results.items():

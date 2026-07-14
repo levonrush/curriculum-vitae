@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import difflib
 import gzip
 import hashlib
 import io
@@ -19,6 +20,7 @@ import subprocess
 import sys
 import tempfile
 from typing import Callable, Iterable, Sequence, TextIO
+import unicodedata
 import urllib.error
 import urllib.request
 import zipfile
@@ -31,20 +33,59 @@ VARIANTS = {
 }
 VARIANT_ALIASES = {
     **VARIANTS,
+    "applied-scientist": VARIANTS["applied"],
     "applied_scientist": VARIANTS["applied"],
+    "ml-platform": VARIANTS["platform"],
     "ml_platform": VARIANTS["platform"],
+    "research-engineer": VARIANTS["research"],
     "research_engineer": VARIANTS["research"],
 }
-REQUIRED_TOOLS = (
+VARIANT_DESCRIPTIONS = {
+    "applied": "balanced; best general choice",
+    "platform": "platforms, governed delivery, and enablement",
+    "research": "research, PhD, and uncertainty",
+}
+CORE_TOOLS = (
     "make",
     "xelatex",
     "latexmk",
     "pdfinfo",
+)
+CHECK_TOOLS = (
     "pdftotext",
     "pdffonts",
     "pdftoppm",
+)
+LOGO_TOOLS = (
     "qlmanage",
 )
+EVIDENCE_OPTIONS = {
+    "1": (
+        "Applied science",
+        r"\AppliedScienceEvidence",
+        "forecasting, anomaly detection, explainability, and operational delivery",
+    ),
+    "2": (
+        "ML platforms",
+        r"\MLPlatformEvidence",
+        "Azure ML, reusable pipelines, CI/CD, dbt, and MLflow",
+    ),
+    "3": (
+        "Research engineering",
+        r"\ResearchEngineeringEvidence",
+        "PhD research, domain adaptation, uncertainty, and validation",
+    ),
+    "4": (
+        "Technical leadership",
+        r"\PrincipalTechnicalEvidence",
+        "reusable practice, production separation, mentoring, and enablement",
+    ),
+    "5": (
+        "Infrastructure and utilities",
+        r"\InfrastructureUtilitiesEvidence",
+        "reliability, water security, governance, and engineering decisions",
+    ),
+}
 REQUIRED_COVER_FIELDS = (
     "Company",
     "RoleTitle",
@@ -115,6 +156,24 @@ class CliError(RuntimeError):
     """An expected, user-facing command failure."""
 
 
+class UserCancelled(RuntimeError):
+    """An interactive workflow ended normally without making a change."""
+
+
+class FriendlyArgumentParser(argparse.ArgumentParser):
+    """Argument parser that turns expected mistakes into short diagnostics."""
+
+    def error(self, message: str) -> None:
+        invalid = re.search(r"invalid choice: '([^']+)' \(choose from (.+)\)", message)
+        if invalid:
+            value = invalid.group(1)
+            choices = [item.strip(" '`\"") for item in invalid.group(2).split(",")]
+            suggestion = difflib.get_close_matches(value, choices, n=1, cutoff=0.6)
+            hint = f" Did you mean `{suggestion[0]}`?" if suggestion else ""
+            raise CliError(f"I don't recognise `{value}`.{hint} Run `cv --help` for the easy commands.")
+        raise CliError(f"{message}. Run `cv --help` for examples.")
+
+
 def repository_root() -> Path:
     override = os.environ.get("CV_REPO_ROOT")
     return Path(override).expanduser().resolve() if override else Path(__file__).resolve().parents[1]
@@ -122,6 +181,12 @@ def repository_root() -> Path:
 
 def _slug_title(slug: str) -> str:
     return slug.replace("-", "_")
+
+
+def _derive_slug(company: str, role: str) -> str:
+    value = unicodedata.normalize("NFKD", f"{company}-{role}")
+    value = value.encode("ascii", "ignore").decode("ascii").lower()
+    return re.sub(r"^-+|-+$", "", re.sub(r"[^a-z0-9]+", "-", value))
 
 
 def _sha256(path: Path) -> str:
@@ -158,85 +223,138 @@ class CVApplication:
         stdout: TextIO | None = None,
         stderr: TextIO | None = None,
         input_fn: Callable[[str], str] = input,
+        isatty_fn: Callable[[], bool] | None = None,
+        today_fn: Callable[[], dt.date] = dt.date.today,
     ) -> None:
         self.root = (root or repository_root()).resolve()
         self.out = stdout or sys.stdout
         self.err = stderr or sys.stderr
         self.input = input_fn
+        self.isatty = isatty_fn or (
+            lambda: bool(sys.stdin.isatty() and getattr(self.out, "isatty", lambda: False)())
+        )
+        self.today = today_fn
         self.parser, self.subparsers = self._make_parser()
 
     def _make_parser(self) -> tuple[argparse.ArgumentParser, argparse._SubParsersAction]:
-        parser = argparse.ArgumentParser(
+        parser = FriendlyArgumentParser(
             prog="cv",
-            description="Build, inspect, and tailor Levon Rush's CV documents locally.",
+            description="Build and open Levon's CVs and cover letters.",
             formatter_class=argparse.RawDescriptionHelpFormatter,
             epilog=(
+                "Run `cv` with no command for the guided menu.\n\n"
+                "CV types:\n"
+                "  applied    balanced applied-science CV; the default\n"
+                "  platform   ML-platform and governed-delivery CV\n"
+                "  research   research-engineering and PhD-focused CV\n\n"
+                "Every CV build includes the configured organisation logos.\n\n"
                 "Examples:\n"
-                "  cv setup\n"
-                "  cv build platform\n"
-                "  cv build cv --no-logos\n"
-                "  cv new cover microsoft-principal-applied-scientist\n"
-                "  cv view cover microsoft-principal-applied-scientist"
+                "  cv\n"
+                "  cv open\n"
+                "  cv open platform\n"
+                "  cv build all\n"
+                "  cv cover\n"
+                "  cv status\n\n"
+                "Run `cv help advanced` for maintenance and compatibility commands."
             ),
         )
         subs = parser.add_subparsers(dest="command", metavar="COMMAND")
 
-        setup = subs.add_parser("setup", help="install the command and fetch logo assets")
-        setup.add_argument("--verbose", action="store_true")
+        guide = subs.add_parser("guide", help="show the guided menu")
+        del guide
 
-        subs.add_parser("doctor", help="check the local document toolchain")
+        open_parser = subs.add_parser("open", help="build if needed, then open a CV")
+        open_parser.add_argument(
+            "target",
+            nargs="?",
+            default="applied",
+            choices=(*VARIANT_ALIASES, "folder", "all", "cover"),
+            metavar="{applied,platform,research,folder}",
+            help="CV type, folder, or advanced cover target",
+        )
+        open_parser.add_argument("application", nargs="?", help=argparse.SUPPRESS)
+        open_parser.add_argument("--verbose", action="store_true", help="show technical build output")
 
-        build = subs.add_parser("build", help="build CV and cover-letter PDFs")
+        build = subs.add_parser("build", help="build a CV without opening it")
         build.add_argument(
             "target",
             nargs="?",
-            default="all",
-            choices=("all", "cv", "applied", "platform", "research", "cover"),
+            default="applied",
+            choices=("all", "cv", *VARIANT_ALIASES, "cover"),
+            metavar="{applied,platform,research,all}",
+            help="CV type; `all` builds all three",
         )
-        build.add_argument("application", nargs="?", help="cover-letter application slug")
-        build.add_argument("--no-logos", action="store_true", help="produce text-only CV PDFs")
-        build.add_argument("--verbose", action="store_true", help="show complete Make/LaTeX output")
+        build.add_argument("application", nargs="?", help=argparse.SUPPRESS)
+        build.add_argument("--verbose", action="store_true", help="show technical build output")
 
-        view = subs.add_parser("view", help="build if stale and open a PDF")
+        cover = subs.add_parser("cover", help="create, edit, or open a cover letter")
+        cover.add_argument("slug", nargs="?", help="existing cover-letter name")
+        cover.add_argument("--verbose", action="store_true", help="show technical build output")
+
+        status = subs.add_parser("status", help="show which PDFs are ready")
+        status.add_argument("--all", action="store_true", help="include the cover-letter template")
+
+        setup = subs.add_parser("setup", help="prepare or troubleshoot this computer")
+        setup.add_argument("--force", action="store_true", help="replace a conflicting symlink")
+        setup.add_argument("--verbose", action="store_true")
+
+        subs.add_parser("doctor", help=argparse.SUPPRESS)
+
+        view = subs.add_parser("view", help=argparse.SUPPRESS)
         view.add_argument(
             "target", nargs="?", default="applied",
-            choices=("applied", "platform", "research", "cover", "all"),
+            choices=(*VARIANT_ALIASES, "cover", "all", "folder"),
         )
         view.add_argument("application", nargs="?", help="cover-letter application slug")
         view.add_argument("--verbose", action="store_true")
 
-        new = subs.add_parser("new", help="create a tailored document")
+        new = subs.add_parser("new", help=argparse.SUPPRESS)
         new.add_argument("kind", choices=("cover",))
         new.add_argument("slug")
 
-        edit = subs.add_parser("edit", help="open a variant or application source in an editor")
+        edit = subs.add_parser("edit", help=argparse.SUPPRESS)
         edit.add_argument("target")
         edit.add_argument("name", nargs="?")
 
-        subs.add_parser("list", help="list variants, applications, outputs, and freshness")
-        check = subs.add_parser("check", help="run CLI, PDF, ATS, and reproducibility checks")
+        list_parser = subs.add_parser("list", help=argparse.SUPPRESS)
+        list_parser.add_argument("--all", action="store_true")
+        check = subs.add_parser("check", help=argparse.SUPPRESS)
         check.add_argument("--verbose", action="store_true")
         clean = subs.add_parser(
             "clean",
-            help="remove build output and stray LaTeX files, preserving downloaded assets",
+            help=argparse.SUPPRESS,
         )
         clean.add_argument("--verbose", action="store_true")
 
-        assets = subs.add_parser("assets", help="inspect or fetch official logo assets")
+        assets = subs.add_parser("assets", help=argparse.SUPPRESS)
         assets.add_argument("action", choices=("status", "fetch"))
         assets.add_argument("--force", action="store_true", help="download even verified assets")
         assets.add_argument("--verbose", action="store_true")
 
         help_parser = subs.add_parser("help", help="show general or command-specific help")
-        help_parser.add_argument("topic", nargs="?", choices=tuple(subs.choices))
+        help_parser.add_argument("topic", nargs="?")
+        everyday = {"guide", "open", "build", "cover", "status", "setup", "help"}
+        subs._choices_actions = [
+            action for action in subs._choices_actions if action.dest in everyday
+        ]
         return parser, subs
 
     def run(self, argv: Sequence[str] | None = None) -> int:
-        args = self.parser.parse_args(list(argv) if argv is not None else None)
+        arguments = list(argv) if argv is not None else sys.argv[1:]
+        if not arguments:
+            if self.isatty():
+                return self.cmd_guide(argparse.Namespace())
+            self.parser.print_help(self.out)
+            return 0
+        args = self.parser.parse_args(arguments)
         if not args.command:
             self.parser.print_help(self.out)
             return 0
         handlers = {
+            "guide": self.cmd_guide,
+            "open": self.cmd_view,
+            "cover": self.cmd_cover,
+            "status": self.cmd_status,
             "setup": self.cmd_setup,
             "doctor": self.cmd_doctor,
             "build": self.cmd_build,
@@ -249,7 +367,11 @@ class CVApplication:
             "assets": self.cmd_assets,
             "help": self.cmd_help,
         }
-        return handlers[args.command](args)
+        try:
+            return handlers[args.command](args)
+        except UserCancelled:
+            self._say("Cancelled.")
+            return 0
 
     def _say(self, message: str = "") -> None:
         print(message, file=self.out)
@@ -260,7 +382,7 @@ class CVApplication:
     def _run_make(self, arguments: Sequence[str], *, verbose: bool = False) -> None:
         make = shutil.which("make")
         if not make:
-            raise CliError("`make` is not installed. Run `cv doctor` for the full toolchain report.")
+            raise CliError("`make` is not installed. Run `cv setup` for the exact requirements.")
         command = [make, *arguments]
         if verbose and not any(item.startswith("VERBOSE=") for item in arguments):
             command.append("VERBOSE=1")
@@ -289,10 +411,9 @@ class CVApplication:
             suffix = f" Latest log: {logs[-1]}" if logs else ""
             raise CliError(f"Build command failed (exit {result.returncode}).{suffix}")
 
-    def _variant_output(self, alias: str, *, logos: bool = True) -> Path:
+    def _variant_output(self, alias: str) -> Path:
         _, label = VARIANT_ALIASES[alias]
-        no_logo = "_No_Logos" if not logos else ""
-        return self.root / "build" / f"Levon_Rush_CV_{label}{no_logo}.pdf"
+        return self.root / "build" / f"Levon_Rush_CV_{label}.pdf"
 
     def _cover_output(self, slug: str) -> Path:
         label = "Template" if slug == "template" else _slug_title(slug)
@@ -317,7 +438,7 @@ class CVApplication:
                 files.append(candidate)
         return files
 
-    def _cv_source_files(self, alias: str, *, logos: bool = True) -> list[Path]:
+    def _cv_source_files(self, alias: str) -> list[Path]:
         files = self._common_source_files()
         entry = self.root / "src" / "cv.tex"
         if entry.is_file():
@@ -328,10 +449,9 @@ class CVApplication:
         variant = self.root / "variants" / f"{VARIANT_ALIASES[alias][0]}.tex"
         if variant.is_file():
             files.append(variant)
-        if logos:
-            logo_directory = self.root / ".vendor" / "logos"
-            if logo_directory.is_dir():
-                files.extend(item for item in logo_directory.iterdir() if item.is_file())
+        logo_directory = self.root / ".vendor" / "logos"
+        if logo_directory.is_dir():
+            files.extend(item for item in logo_directory.iterdir() if item.is_file())
         return files
 
     def _cover_source_files(self, slug: str) -> list[Path]:
@@ -356,62 +476,114 @@ class CVApplication:
     def _validate_slug(self, slug: str) -> None:
         if not SLUG_RE.fullmatch(slug):
             raise CliError(
-                "Application slugs use lowercase letters, digits, and single hyphens "
+                "Cover-letter names use lowercase letters, digits, and single hyphens "
                 "(for example: microsoft-principal-scientist)."
             )
 
-    def _validate_cover(self, slug: str) -> None:
-        if slug == "template":
-            return
-        self._validate_slug(slug)
-        path = self._application_path(slug)
-        if not path.is_file():
-            raise CliError(f"Cover application does not exist: {path}. Create it with `cv new cover {slug}`.")
-        content = path.read_text(encoding="utf-8")
+    def _extract_cover_fields(self, content: str) -> dict[str, str]:
+        fields: dict[str, str] = {}
+        command = re.compile(
+            r"\\(?:newcommand|renewcommand)\s*\{\s*\\([A-Za-z]+)\s*\}\s*\{"
+        )
+        for match in command.finditer(content):
+            start = match.end()
+            index = start
+            depth = 1
+            while index < len(content) and depth:
+                char = content[index]
+                if char == "\\" and index + 1 < len(content) and content[index + 1] in "{}%":
+                    index += 2
+                    continue
+                if char == "{":
+                    depth += 1
+                elif char == "}":
+                    depth -= 1
+                    if depth == 0:
+                        fields[match.group(1)] = content[start:index].strip()
+                        break
+                index += 1
+        return fields
+
+    def _validate_cover_content(self, content: str, label: str = "cover letter") -> dict[str, str]:
         validation_content = re.sub(r"(?m)(?<!\\)%.*$", " ", content)
         if PLACEHOLDER_RE.search(validation_content):
-            raise CliError(f"{path} still contains TODO or placeholder text; finish it before building.")
+            raise CliError(f"{label} still contains unfinished placeholder text.")
+        fields = self._extract_cover_fields(validation_content)
         for field in REQUIRED_COVER_FIELDS:
-            match = re.search(
-                rf"\\(?:newcommand|renewcommand)\s*\{{\\{field}\}}\s*\{{([^}}]*)\}}",
-                validation_content,
-                re.DOTALL,
-            )
-            if not match or not match.group(1).strip():
-                raise CliError(f"{path} must define a non-empty \\{field} field.")
+            if not fields.get(field, "").strip():
+                friendly = re.sub(r"(?<!^)(?=[A-Z])", " ", field).lower()
+                raise CliError(f"{label} still needs {friendly}.")
         plain = validation_content
         plain = re.sub(r"\\[A-Za-z@]+\*?", " ", plain)
         plain = re.sub(r"[^A-Za-z0-9'’-]+", " ", plain)
         if len(plain.split()) > 650:
-            raise CliError(f"{path} exceeds the 650-word application-source budget.")
+            raise CliError(f"{label} exceeds the 650-word source budget; shorten the prose and try again.")
+        return fields
+
+    def _validate_cover(self, slug: str) -> dict[str, str]:
+        if slug == "template":
+            return {}
+        self._validate_slug(slug)
+        path = self._application_path(slug)
+        if not path.is_file():
+            raise CliError(f"No cover letter named `{slug}` exists. Run `cv cover` to create one.")
+        return self._validate_cover_content(path.read_text(encoding="utf-8"), path.name)
+
+    def _relative(self, path: Path) -> str:
+        try:
+            return str(path.relative_to(self.root))
+        except ValueError:
+            return str(path)
+
+    def _canonical_variant(self, alias: str) -> str:
+        value = VARIANT_ALIASES[alias]
+        return next(name for name, record in VARIANTS.items() if record == value)
+
+    def _build_cv(
+        self,
+        alias: str,
+        *,
+        verbose: bool = False,
+        verify_assets: bool = True,
+    ) -> Path:
+        canonical = self._canonical_variant(alias)
+        if verify_assets:
+            self._require_logo_assets()
+        make_args = ["cv", f"VARIANT={VARIANTS[canonical][0]}"]
+        self._say(f"Building the {canonical} CV …")
+        self._run_make(make_args, verbose=verbose)
+        output = self._variant_output(canonical)
+        self._say(f"✓ Ready: {self._relative(output)}")
+        return output
+
+    def _build_all_cvs(self, *, verbose: bool = False) -> list[Path]:
+        self._require_logo_assets()
+        self._say("Building all three CVs …")
+        self._run_make(["cvs"], verbose=verbose)
+        outputs = [self._variant_output(alias) for alias in VARIANTS]
+        for output in outputs:
+            self._say(f"✓ Ready: {self._relative(output)}")
+        return outputs
+
+    def _build_cover(self, slug: str, *, verbose: bool = False) -> Path:
+        self._validate_cover(slug)
+        self._say(f"Building cover letter `{slug}` …")
+        self._run_make(["cover", f"APP={slug}"], verbose=verbose)
+        output = self._cover_output(slug)
+        self._say(f"✓ Ready: {self._relative(output)}")
+        return output
 
     def cmd_build(self, args: argparse.Namespace) -> int:
         target, application = args.target, args.application
         if target != "cover" and application:
             raise CliError("An application slug can only follow `cv build cover`.")
-        if args.no_logos and target not in ("cv", "applied", "platform", "research"):
-            raise CliError("`--no-logos` is available only for CV builds.")
-        if not args.no_logos and target in ("all", "cv", "applied", "platform", "research"):
-            self._require_logo_assets()
-        logos = "0" if args.no_logos else "1"
-        if target == "all":
-            make_args = ["all"]
-            label = "all CVs and the cover-letter template"
-        elif target == "cv":
-            make_args = ["cvs", f"LOGOS={logos}"]
-            label = "all text-only CVs" if args.no_logos else "all CVs"
-        elif target in VARIANTS:
-            variant = VARIANTS[target][0]
-            make_args = ["cv", f"VARIANT={variant}", f"LOGOS={logos}"]
-            label = f"the {target} CV"
-        else:
+        if target == "cover":
             slug = application or "template"
-            self._validate_cover(slug)
-            make_args = ["cover", f"APP={slug}"]
-            label = "the cover-letter template" if slug == "template" else f"cover letter '{slug}'"
-        self._say(f"Building {label} …")
-        self._run_make(make_args, verbose=args.verbose)
-        self._say("Build complete.")
+            self._build_cover(slug, verbose=args.verbose)
+        elif target in ("all", "cv"):
+            self._build_all_cvs(verbose=args.verbose)
+        else:
+            self._build_cv(target, verbose=args.verbose)
         return 0
 
     def _open_path(self, path: Path) -> None:
@@ -436,44 +608,549 @@ class CVApplication:
             raise CliError(f"Could not open {path}: {error}") from error
 
     def cmd_view(self, args: argparse.Namespace) -> int:
-        if args.target == "all":
+        if args.target in ("all", "folder"):
             if args.application:
-                raise CliError("`cv view all` does not take an application slug.")
+                raise CliError("Opening the PDF folder does not take another name.")
             build = self.root / "build"
             build.mkdir(parents=True, exist_ok=True)
+            self._say(f"Opening {self._relative(build)}/")
             self._open_path(build)
             return 0
         if args.target == "cover":
             slug = args.application or "template"
-            self._validate_cover(slug)
-            output = self._cover_output(slug)
-            make_args = ["cover", f"APP={slug}"]
+            return self._open_cover(slug, verbose=args.verbose)
         else:
             if args.application:
                 raise CliError("An application slug can only follow `cv view cover`.")
-            output = self._variant_output(args.target)
-            make_args = ["cv", f"VARIANT={VARIANTS[args.target][0]}", "LOGOS=1"]
-        sources = (
-            self._cover_source_files(slug)
-            if args.target == "cover"
-            else self._cv_source_files(args.target, logos=True)
-        )
+            return self._open_cv(args.target, verbose=args.verbose)
+
+    def _open_cv(self, alias: str, *, verbose: bool = False) -> int:
+        canonical = self._canonical_variant(alias)
+        self._require_logo_assets()
+        output = self._variant_output(canonical)
+        sources = self._cv_source_files(canonical)
         if self._freshness(output, sources) != "current":
-            self._say(f"{output.name} is missing or stale; rebuilding …")
-            self._run_make(make_args, verbose=args.verbose)
+            self._build_cv(canonical, verbose=verbose, verify_assets=False)
         if not output.is_file():
-            raise CliError(f"The build succeeded but did not create the expected PDF: {output}")
-        self._say(f"Opening {output}")
-        self._open_path(output)
+            raise CliError(f"The build finished but did not create {self._relative(output)}.")
+        self._say(f"Opening {self._relative(output)}")
+        try:
+            self._open_path(output)
+        except CliError as error:
+            raise CliError(f"{error} The PDF is ready at {self._relative(output)}.") from error
         return 0
+
+    def _open_cover(
+        self,
+        slug: str,
+        *,
+        verbose: bool = False,
+        verify_pages: bool = False,
+    ) -> int:
+        self._validate_cover(slug)
+        output = self._cover_output(slug)
+        if self._freshness(output, self._cover_source_files(slug)) != "current":
+            self._build_cover(slug, verbose=verbose)
+        if not output.is_file():
+            raise CliError(f"The build finished but did not create {self._relative(output)}.")
+        if verify_pages and slug != "template":
+            self._verify_cover_page_count(output)
+        self._say(f"Opening {self._relative(output)}")
+        try:
+            self._open_path(output)
+        except CliError as error:
+            raise CliError(f"{error} The PDF is ready at {self._relative(output)}.") from error
+        return 0
+
+    def _verify_cover_page_count(self, path: Path) -> None:
+        pdfinfo = shutil.which("pdfinfo")
+        if not pdfinfo:
+            raise CliError("`pdfinfo` is needed to confirm that the cover letter is one page. Run `cv setup`.")
+        result = subprocess.run(
+            [pdfinfo, str(path)],
+            cwd=self.root,
+            check=False,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        match = re.search(r"(?m)^Pages:\s+(\d+)\s*$", result.stdout or "")
+        if result.returncode or not match:
+            raise CliError(f"I built {self._relative(path)}, but could not verify its page count.")
+        pages = int(match.group(1))
+        if pages != 1:
+            raise CliError(
+                f"{self._relative(path)} is {pages} pages; a cover letter must fit on one page. "
+                "Run `cv cover` to shorten it."
+            )
 
     def _prompt(self, label: str, default: str | None = None) -> str:
         suffix = f" [{default}]" if default else ""
         try:
             value = self.input(f"{label}{suffix}: ").strip()
-        except (EOFError, KeyboardInterrupt) as error:
-            raise CliError("Cover-letter creation was cancelled.") from error
+        except EOFError as error:
+            raise UserCancelled from error
         return value or (default or "")
+
+    def _prompt_required(self, label: str, default: str | None = None) -> str:
+        while True:
+            value = self._prompt(label, default)
+            if value:
+                return value
+            self._say(f"{label} cannot be empty. Enter it, or press Ctrl-C to cancel.")
+
+    def _prompt_plain_required(self, label: str, default: str | None = None) -> str:
+        while True:
+            value = self._prompt_required(label, default)
+            if not PLACEHOLDER_RE.search(value):
+                return value
+            self._say(f"{label} still looks unfinished. Replace TODO/TBD text before continuing.")
+            default = None
+
+    def _prompt_slug(self, label: str) -> str:
+        while True:
+            value = self._prompt_required(label)
+            if SLUG_RE.fullmatch(value):
+                return value
+            self._say("Use lowercase letters, numbers, and single hyphens only.")
+
+    def _prompt_date(self, default: str) -> str:
+        while True:
+            value = self._prompt("Letter date", default)
+            for date_format in ("%d %B %Y", "%Y-%m-%d"):
+                try:
+                    dt.datetime.strptime(value, date_format)
+                    return value
+                except ValueError:
+                    continue
+            self._say("Use a date such as `14 July 2026` or `2026-07-14`.")
+
+    def _confirm(self, label: str, *, default: bool = True) -> bool:
+        suffix = "Y/n" if default else "y/N"
+        while True:
+            value = self._prompt(f"{label} [{suffix}]").lower()
+            if not value:
+                return default
+            if value in ("y", "yes"):
+                return True
+            if value in ("n", "no", "b", "back"):
+                return False
+            self._say("Please answer yes or no.")
+
+    def _choice(
+        self,
+        prompt: str,
+        choices: dict[str, str],
+        *,
+        default: str | None = None,
+    ) -> str:
+        while True:
+            value = self._prompt(prompt, default).lower()
+            if value in choices:
+                return choices[value]
+            named = [result for result in dict.fromkeys(choices.values()) if result not in ("back", "quit")]
+            match = [item for item in named if item.lower().startswith(value)] if value else []
+            if len(match) == 1:
+                return match[0]
+            self._say("Choose one of: " + ", ".join(choices) + ".")
+
+    def cmd_guide(self, _args: argparse.Namespace) -> int:
+        if not self.isatty():
+            raise CliError("`cv guide` needs an interactive terminal. Run `cv --help` here instead.")
+        while True:
+            self._say("Levon’s documents")
+            self._say()
+            self._say("  1  Open my main CV")
+            self._say("  2  Open a different CV")
+            self._say("  3  Work on a cover letter")
+            self._say("  4  Open the PDF folder")
+            self._say("  5  Setup or troubleshoot")
+            self._say("  q  Quit")
+            self._say()
+            choice = self._choice(
+                "Choose",
+                {
+                    "1": "main",
+                    "2": "different",
+                    "3": "cover",
+                    "4": "folder",
+                    "5": "setup",
+                    "q": "quit",
+                    "quit": "quit",
+                },
+                default="1",
+            )
+            if choice == "quit":
+                return 0
+            if choice == "main":
+                return self._open_cv("applied")
+            if choice == "different":
+                self._say("Choose a CV:")
+                for number, alias in enumerate(VARIANTS, start=1):
+                    title = alias.replace("_", " ").title()
+                    self._say(f"  {number}  {title} — {VARIANT_DESCRIPTIONS[alias]}")
+                self._say("  b  Back")
+                selected = self._choice(
+                    "Choose",
+                    {"1": "applied", "2": "platform", "3": "research", "b": "back"},
+                    default="1",
+                )
+                if selected == "back":
+                    continue
+                return self._open_cv(selected)
+            if choice == "cover":
+                result = self.cmd_cover(
+                    argparse.Namespace(slug=None, verbose=False, from_guide=True)
+                )
+                if result == -1:
+                    continue
+                return result
+            if choice == "folder":
+                return self.cmd_view(
+                    argparse.Namespace(
+                        target="folder",
+                        application=None,
+                        verbose=False,
+                    )
+                )
+            return self.cmd_setup(
+                argparse.Namespace(force=False, verbose=False)
+            )
+
+    @staticmethod
+    def _tex_unescape(value: str) -> str:
+        replacements = (
+            (r"\textbackslash{}", "\\"),
+            (r"\textasciitilde{}", "~"),
+            (r"\textasciicircum{}", "^"),
+            (r"\&", "&"),
+            (r"\%", "%"),
+            (r"\$", "$"),
+            (r"\#", "#"),
+            (r"\_", "_"),
+            (r"\{", "{"),
+            (r"\}", "}"),
+        )
+        for escaped, plain in replacements:
+            value = value.replace(escaped, plain)
+        return value
+
+    def _tailored_applications(self) -> list[Path]:
+        directory = self.root / "applications"
+        if not directory.is_dir():
+            return []
+        return [path for path in sorted(directory.glob("*.tex")) if path.stem != "template"]
+
+    def _cover_summary(self, path: Path) -> tuple[str, str]:
+        fields = self._extract_cover_fields(path.read_text(encoding="utf-8"))
+        company = self._tex_unescape(fields.get("Company", path.stem))
+        role = self._tex_unescape(fields.get("RoleTitle", "cover letter"))
+        return company, role
+
+    def _friendly_state(self, state: str) -> str:
+        return {"current": "ready", "stale": "needs rebuilding", "missing": "not built"}[state]
+
+    def _simple_cover_fields(self, path: Path) -> dict[str, str] | None:
+        content = path.read_text(encoding="utf-8")
+        fields = self._extract_cover_fields(content)
+        allowed = set(REQUIRED_COVER_FIELDS) | {"EvidenceThree"}
+        command = re.compile(
+            r"^\\(?:newcommand|renewcommand)\s*\{\\([A-Za-z]+)\}\s*\{.*\}\s*$"
+        )
+        for line in content.splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("%"):
+                continue
+            match = command.match(stripped)
+            if not match or match.group(1) not in allowed:
+                return None
+        if not set(REQUIRED_COVER_FIELDS).issubset(fields):
+            return None
+        evidence_macros = {record[1] for record in EVIDENCE_OPTIONS.values()}
+        for name in ("EvidenceOne", "EvidenceTwo"):
+            if fields[name] not in evidence_macros:
+                return None
+        if fields.get("EvidenceThree", "") not in evidence_macros | {""}:
+            return None
+        for name in (
+            "Company",
+            "RoleTitle",
+            "HiringManager",
+            "LetterDate",
+            "OpeningReason",
+            "OrganisationFit",
+            "ClosingParagraph",
+        ):
+            value = fields[name]
+            if name == "ClosingParagraph":
+                value = value.replace(r"\Company", fields["Company"])
+            if _tex_escape(self._tex_unescape(value)) != value:
+                return None
+        return fields
+
+    def _prompt_evidence(self, defaults: Sequence[str] = ("1", "2")) -> list[str]:
+        self._say("Which experience best supports this role?")
+        self._say("Choose 2 or 3 numbers, in the order they should appear.")
+        for number, (label, _macro, description) in EVIDENCE_OPTIONS.items():
+            self._say(f"  {number}  {label} — {description}")
+        default = ",".join(defaults)
+        while True:
+            raw = self._prompt("Evidence", default)
+            values = [item for item in re.split(r"[\s,]+", raw) if item]
+            if len(values) not in (2, 3):
+                self._say("Choose exactly two or three evidence numbers.")
+                continue
+            if len(set(values)) != len(values):
+                self._say("Choose each evidence theme only once.")
+                continue
+            invalid = [value for value in values if value not in EVIDENCE_OPTIONS]
+            if invalid:
+                self._say("Evidence choices must be numbers from 1 to 5.")
+                continue
+            return values
+
+    def _render_cover(self, values: dict[str, str], evidence: Sequence[str]) -> str:
+        macros = [EVIDENCE_OPTIONS[number][1] for number in evidence]
+        macros.extend([""] * (3 - len(macros)))
+        return f"""% Generated by `cv cover`. Use the guided command to review this letter.
+\\newcommand{{\\Company}}{{{_tex_escape(values['Company'])}}}
+\\newcommand{{\\RoleTitle}}{{{_tex_escape(values['RoleTitle'])}}}
+\\newcommand{{\\HiringManager}}{{{_tex_escape(values['HiringManager'])}}}
+\\newcommand{{\\LetterDate}}{{{_tex_escape(values['LetterDate'])}}}
+\\newcommand{{\\OpeningReason}}{{{_tex_escape(values['OpeningReason'])}}}
+\\newcommand{{\\EvidenceOne}}{{{macros[0]}}}
+\\newcommand{{\\EvidenceTwo}}{{{macros[1]}}}
+\\newcommand{{\\EvidenceThree}}{{{macros[2]}}}
+\\newcommand{{\\OrganisationFit}}{{{_tex_escape(values['OrganisationFit'])}}}
+\\newcommand{{\\ClosingParagraph}}{{{_tex_escape(values['ClosingParagraph'])}}}
+"""
+
+    def _write_cover_atomically(self, slug: str, content: str) -> Path:
+        path = self._application_path(slug)
+        temporary: Path | None = None
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with tempfile.NamedTemporaryFile(
+                "w",
+                encoding="utf-8",
+                dir=path.parent,
+                prefix=f".{slug}.",
+                suffix=".tmp",
+                delete=False,
+            ) as handle:
+                handle.write(content)
+                handle.flush()
+                os.fsync(handle.fileno())
+                temporary = Path(handle.name)
+            self._validate_cover_content(temporary.read_text(encoding="utf-8"), path.name)
+            os.replace(temporary, path)
+            return path
+        except OSError as error:
+            raise CliError(f"Could not safely save {self._relative(path)}: {error}") from error
+        finally:
+            if temporary and temporary.exists():
+                try:
+                    temporary.unlink()
+                except OSError:
+                    pass
+
+    def _cover_wizard(
+        self,
+        *,
+        slug: str | None = None,
+        existing: dict[str, str] | None = None,
+        verbose: bool = False,
+    ) -> int:
+        existing = existing or {}
+
+        def previous(name: str) -> str | None:
+            value = self._tex_unescape(existing.get(name, ""))
+            return None if not value or PLACEHOLDER_RE.search(value) else value
+
+        self._say("New cover letter" if not existing else "Review cover letter")
+        company = self._prompt_plain_required("Company or organisation", previous("Company"))
+        role = self._prompt_plain_required("Role title", previous("RoleTitle"))
+        if slug is None:
+            slug = _derive_slug(company, role)
+            if not slug:
+                slug = self._prompt_slug("Short file name")
+        self._validate_slug(slug)
+
+        path = self._application_path(slug)
+        if path.exists() and not existing:
+            old_company, old_role = self._cover_summary(path)
+            self._say(f"A cover letter for {old_company} — {old_role} already exists.")
+            self._say("  1  Open the existing letter")
+            self._say("  2  Update the existing letter")
+            self._say("  3  Create another with a different name")
+            self._say("  b  Cancel")
+            choice = self._choice(
+                "Choose",
+                {"1": "open", "2": "update", "3": "rename", "b": "back"},
+                default="1",
+            )
+            if choice == "open":
+                return self._resume_cover(slug, verbose=verbose)
+            if choice == "update":
+                fields = self._simple_cover_fields(path)
+                if fields is None:
+                    raise CliError(f"{path.name} has custom TeX. Use `cv edit cover {slug}` to preserve it.")
+                return self._cover_wizard(slug=slug, existing=fields, verbose=verbose)
+            if choice == "back":
+                return 0
+            while True:
+                replacement = self._prompt_slug("Different short name")
+                if not self._application_path(replacement).exists():
+                    slug = replacement
+                    break
+                self._say(f"`{replacement}` already exists; choose another name.")
+
+        manager = self._prompt("Hiring manager", previous("HiringManager") or "Hiring Manager")
+        today = self.today()
+        default_date = f"{today.day} {today.strftime('%B %Y')}"
+        letter_date = self._prompt_date(previous("LetterDate") or default_date)
+        opening = self._prompt_plain_required("Why this role and organisation", previous("OpeningReason"))
+        fit = self._prompt_plain_required("Why you are a good fit", previous("OrganisationFit"))
+        closing_previous = previous("ClosingParagraph")
+        if closing_previous:
+            closing_previous = closing_previous.replace(r"\Company", company)
+        closing_default = closing_previous or (
+            f"I would welcome the opportunity to discuss how my experience could contribute to {company}."
+        )
+        closing = self._prompt_plain_required("Closing", closing_default)
+
+        reverse_evidence = {record[1]: number for number, record in EVIDENCE_OPTIONS.items()}
+        evidence_defaults = [
+            reverse_evidence[value]
+            for name in ("EvidenceOne", "EvidenceTwo", "EvidenceThree")
+            if (value := existing.get(name, "")) in reverse_evidence
+        ] or ["1", "2"]
+        evidence = self._prompt_evidence(evidence_defaults)
+        while True:
+            values = {
+                "Company": company,
+                "RoleTitle": role,
+                "HiringManager": manager,
+                "LetterDate": letter_date,
+                "OpeningReason": opening,
+                "OrganisationFit": fit,
+                "ClosingParagraph": closing,
+            }
+            content = self._render_cover(values, evidence)
+            try:
+                self._validate_cover_content(content, "This cover letter")
+                break
+            except CliError as error:
+                if "650-word" not in str(error):
+                    raise
+                self._say(str(error))
+                opening = self._prompt_plain_required("Shorter reason for this role")
+                fit = self._prompt_plain_required("Shorter explanation of your fit")
+                closing = self._prompt_plain_required("Shorter closing", closing_default)
+        saved = self._write_cover_atomically(slug, content)
+        self._say(f"✓ Saved: {self._relative(saved)}")
+        try:
+            build_now = self._confirm("Build and open it now?", default=True)
+        except UserCancelled:
+            self._say(f"The completed source remains saved at {self._relative(saved)}.")
+            return 0
+        except KeyboardInterrupt:
+            self._warn(f"The completed source remains saved at {self._relative(saved)}.")
+            raise
+        if build_now:
+            return self._open_cover(slug, verbose=verbose, verify_pages=True)
+        return 0
+
+    def _resume_cover(
+        self,
+        slug: str,
+        *,
+        verbose: bool = False,
+        back_code: int = 0,
+    ) -> int:
+        path = self._application_path(slug)
+        if not path.is_file():
+            if not self.isatty():
+                raise CliError(
+                    f"No cover letter named `{slug}` exists. Run `cv cover` in a terminal to create one."
+                )
+            return self._cover_wizard(slug=slug, verbose=verbose)
+        fields = self._simple_cover_fields(path)
+        try:
+            valid = bool(self._validate_cover(slug) is not None)
+        except CliError:
+            valid = False
+        if not self.isatty():
+            if not valid:
+                raise CliError(f"{path.name} is unfinished. Run `cv cover {slug}` in a terminal to finish it.")
+            return self._open_cover(slug, verbose=verbose, verify_pages=True)
+        company, role = self._cover_summary(path)
+        self._say(f"{company} — {role}")
+        if valid:
+            self._say("  1  Build and open")
+            self._say("  2  Review or update")
+            self._say("  3  Edit the source (advanced)")
+            self._say("  b  Back")
+            choice = self._choice(
+                "Choose",
+                {"1": "open", "2": "update", "3": "edit", "b": "back"},
+                default="1",
+            )
+        else:
+            self._say("This letter is unfinished.")
+            self._say("  1  Finish it")
+            self._say("  2  Edit the source (advanced)")
+            self._say("  b  Back")
+            choice = self._choice(
+                "Choose", {"1": "update", "2": "edit", "b": "back"}, default="1"
+            )
+        if choice == "open":
+            return self._open_cover(slug, verbose=verbose, verify_pages=True)
+        if choice == "update":
+            if fields is None:
+                raise CliError(f"{path.name} has custom TeX. Use `cv edit cover {slug}` to preserve it.")
+            return self._cover_wizard(slug=slug, existing=fields, verbose=verbose)
+        if choice == "edit":
+            return self.cmd_edit(argparse.Namespace(target="cover", name=slug))
+        return back_code
+
+    def cmd_cover(self, args: argparse.Namespace) -> int:
+        back_result = -1 if getattr(args, "from_guide", False) else 0
+        if args.slug:
+            if args.slug == "template":
+                raise CliError("The template is hidden from the guided flow. Use `cv build cover template` if needed.")
+            self._validate_slug(args.slug)
+            return self._resume_cover(args.slug, verbose=args.verbose)
+        if not self.isatty():
+            raise CliError("`cv cover` needs an interactive terminal. Run it in Terminal to create a letter.")
+        applications = self._tailored_applications()
+        if not applications:
+            self._say("You do not have any tailored cover letters yet.")
+            if not self._confirm("Create one now?", default=True):
+                return back_result
+            return self._cover_wizard(verbose=args.verbose)
+        while True:
+            self._say("Cover letters")
+            choices: dict[str, str] = {"n": "new", "b": "back"}
+            for number, path in enumerate(applications, start=1):
+                company, role = self._cover_summary(path)
+                state = self._friendly_state(
+                    self._freshness(
+                        self._cover_output(path.stem), self._cover_source_files(path.stem)
+                    )
+                )
+                self._say(f"  {number}  {company} — {role}  ({state})")
+                choices[str(number)] = path.stem
+            self._say("  n  Create a new cover letter")
+            self._say("  b  Back")
+            selected = self._choice("Choose", choices)
+            if selected == "back":
+                return back_result
+            if selected == "new":
+                return self._cover_wizard(verbose=args.verbose)
+            result = self._resume_cover(selected, verbose=args.verbose, back_code=-1)
+            if result != -1:
+                return result
 
     def cmd_new(self, args: argparse.Namespace) -> int:
         self._validate_slug(args.slug)
@@ -485,7 +1162,7 @@ class CVApplication:
         if not company or not role:
             raise CliError("Company and role title are required.")
         manager = self._prompt("Hiring manager", "Hiring Manager")
-        today = dt.date.today()
+        today = self.today()
         default_date = f"{today.day} {today.strftime('%B %Y')}"
         letter_date = self._prompt("Letter date", default_date)
         content = f"""% Generated by `cv new cover {args.slug}`. Complete TODO fields before building.
@@ -548,26 +1225,44 @@ class CVApplication:
             raise CliError(f"Editor exited with status {result.returncode}.")
         return 0
 
-    def cmd_list(self, _args: argparse.Namespace) -> int:
-        self._say("CV variants:")
+    def cmd_status(self, args: argparse.Namespace) -> int:
+        show_all = bool(getattr(args, "all", False))
+        self._say("CVs")
+        try:
+            assets_ready = self._assets_status(emit=False) == 0
+        except CliError:
+            assets_ready = False
         for alias in VARIANTS:
             output = self._variant_output(alias)
-            state = self._freshness(output, self._cv_source_files(alias, logos=True))
-            self._say(f"  {alias:<16} {state:<7} {output}")
-            text_output = self._variant_output(alias, logos=False)
-            text_state = self._freshness(
-                text_output, self._cv_source_files(alias, logos=False)
+            state = self._freshness(output, self._cv_source_files(alias))
+            friendly_state = self._friendly_state(state) if assets_ready else "logo assets missing"
+            marker = " (default)" if alias == "applied" else ""
+            self._say(
+                f"  {alias}{marker:<10} {friendly_state:<19} {self._relative(output)}"
             )
-            self._say(f"  {alias + ' (text)':<16} {text_state:<7} {text_output}")
-        self._say("Cover letters:")
-        applications = sorted((self.root / "applications").glob("*.tex")) if (self.root / "applications").is_dir() else []
+        self._say("Cover letters")
+        applications = self._tailored_applications()
+        if show_all:
+            template = self._application_path("template")
+            if template.is_file():
+                applications = [template, *applications]
         if not applications:
             self._say("  (none)")
         for source in applications:
             output = self._cover_output(source.stem)
             state = self._freshness(output, self._cover_source_files(source.stem))
-            self._say(f"  {source.stem:<24} {state:<7} {output}")
+            if source.stem == "template":
+                label = "template"
+            else:
+                company, role = self._cover_summary(source)
+                label = f"{company} — {role}"
+            self._say(
+                f"  {label:<32} {self._friendly_state(state):<17} {self._relative(output)}"
+            )
         return 0
+
+    def cmd_list(self, args: argparse.Namespace) -> int:
+        return self.cmd_status(args)
 
     def _load_logo_manifest(self) -> list[dict[str, object]]:
         path = self.root / "assets" / "logo_sources.json"
@@ -607,8 +1302,7 @@ class CVApplication:
             raise CliError(
                 "Official logo assets are not ready ("
                 + "; ".join(issues)
-                + "). Run `cv setup`, or build text-only PDFs with "
-                "`cv build cv --no-logos`."
+                + "). Run `cv setup` and try again."
             )
 
     def _download(self, url: str) -> bytes:
@@ -772,39 +1466,66 @@ class CVApplication:
         directory = Path(configured).expanduser() if configured else Path.home() / ".local" / "bin"
         return directory / "cv"
 
-    def _doctor_checks(self) -> list[tuple[str, bool, str]]:
-        checks: list[tuple[str, bool, str]] = []
-        checks.append(("Python >= 3.10", sys.version_info >= (3, 10), sys.version.split()[0]))
-        for tool in REQUIRED_TOOLS:
+    def _path_contains(self, directory: Path) -> bool:
+        entries = [Path(value).expanduser() for value in os.environ.get("PATH", "").split(os.pathsep) if value]
+        return any(entry.resolve() == directory.expanduser().resolve() for entry in entries)
+
+    def _doctor_groups(self) -> dict[str, list[tuple[str, bool, str]]]:
+        required: list[tuple[str, bool, str]] = []
+        required.append(("Python >= 3.10", sys.version_info >= (3, 10), sys.version.split()[0]))
+        for tool in CORE_TOOLS:
             location = shutil.which(tool)
-            checks.append((tool, bool(location), location or "not found"))
+            required.append((tool, bool(location), location or "not found; see README > Toolchain"))
+        for tool in LOGO_TOOLS:
+            location = shutil.which(tool)
+            required.append((tool, bool(location), location or "needed to prepare required logo assets"))
         fonts_ok, fonts_detail = self._font_check()
-        checks.append(("IBM Plex Sans fonts", fonts_ok, fonts_detail))
-        install = self._install_path()
-        expected = self.root / "cv"
-        installed = install.is_symlink() and install.resolve() == expected.resolve()
-        checks.append(("cv command symlink", installed, str(install)))
+        required.append(("IBM Plex Sans fonts", fonts_ok, fonts_detail))
         try:
             logos_ok = self._assets_status(emit=False) == 0
             logo_detail = str(self.root / ".vendor" / "logos")
         except CliError as error:
             logos_ok, logo_detail = False, str(error)
-        checks.append(("official logo assets", logos_ok, logo_detail))
+        required.append(("organisation logo assets", logos_ok, logo_detail))
+        install = self._install_path()
+        expected = self.root / "cv"
+        installed = install.is_symlink() and install.resolve() == expected.resolve()
+        required.append(("cv command", installed, str(install)))
+        on_path = self._path_contains(install.parent)
+        required.append(
+            (
+                "command directory on PATH",
+                on_path,
+                str(install.parent) if on_path else f"add {install.parent} to PATH",
+            )
+        )
         viewer = self._viewer()
-        checks.append(("PDF viewer", bool(viewer), viewer or "set CV_PDF_VIEWER"))
-        return checks
+        required.append(("PDF viewer", bool(viewer), viewer or "set CV_PDF_VIEWER"))
+
+        full_checks: list[tuple[str, bool, str]] = []
+        for tool in CHECK_TOOLS:
+            location = shutil.which(tool)
+            full_checks.append((tool, bool(location), location or "not found; install Poppler for `cv check`"))
+
+        return {"Everyday use": required, "Full document checks": full_checks}
+
+    def _doctor_checks(self) -> list[tuple[str, bool, str]]:
+        """Flattened compatibility view used by older tests and integrations."""
+        return [check for group in self._doctor_groups().values() for check in group]
 
     def cmd_doctor(self, _args: argparse.Namespace) -> int:
-        self._say("CV toolchain report")
-        checks = self._doctor_checks()
-        for label, okay, detail in checks:
-            self._say(f"[{'ok' if okay else 'missing'}] {label}: {detail}")
-        self._say("[notice] Confirm permission to use organisation logos before external distribution.")
-        failures = sum(not okay for _, okay, _ in checks)
-        self._say("Ready." if not failures else f"{failures} required check(s) need attention.")
+        self._say("CV setup report")
+        groups = self._doctor_groups()
+        for heading, checks in groups.items():
+            self._say(heading)
+            for label, okay, detail in checks:
+                marker = "ok" if okay else "missing"
+                self._say(f"  [{marker}] {label}: {detail}")
+        failures = sum(not okay for _, okay, _ in groups["Everyday use"])
+        self._say("Ready for everyday use." if not failures else f"{failures} everyday setup item(s) need attention.")
         return int(bool(failures))
 
-    def _install_command(self) -> None:
+    def _install_command(self, *, force: bool = False) -> None:
         source = self.root / "cv"
         if not source.is_file():
             raise CliError(f"Repository command is missing: {source}")
@@ -815,6 +1536,14 @@ class CVApplication:
             if destination.resolve() == source.resolve():
                 self._say(f"[ok] command already installed: {destination}")
                 return
+            if not force:
+                if not self.isatty() or not self._confirm(
+                    f"{destination} points somewhere else. Replace that symlink?", default=False
+                ):
+                    raise CliError(
+                        f"Refusing to replace the unrelated symlink at {destination}. "
+                        "Move it aside or rerun `cv setup --force`."
+                    )
             destination.unlink()
         elif destination.exists():
             raise CliError(
@@ -824,11 +1553,14 @@ class CVApplication:
         self._say(f"[ok] installed command: {destination} -> {source}")
 
     def cmd_setup(self, args: argparse.Namespace) -> int:
-        self._install_command()
+        self._install_command(force=bool(getattr(args, "force", False)))
         failures = self._fetch_assets(force=False, verbose=args.verbose)
         doctor_result = self.cmd_doctor(argparse.Namespace())
         if failures:
-            self._warn("Some official assets could not be fetched. Existing verified assets were preserved; retry `cv assets fetch` when online.")
+            self._warn(
+                "Required organisation logos could not be prepared. Existing verified assets were "
+                "preserved; retry `cv setup` when online."
+            )
         return int(bool(failures or doctor_result))
 
     def cmd_check(self, args: argparse.Namespace) -> int:
@@ -883,10 +1615,31 @@ class CVApplication:
         return 0
 
     def cmd_help(self, args: argparse.Namespace) -> int:
-        if args.topic:
-            self.subparsers.choices[args.topic].print_help(self.out)
-        else:
+        if not args.topic:
             self.parser.print_help(self.out)
+            return 0
+        if args.topic == "advanced":
+            self._say("Advanced and compatibility commands")
+            self._say("  cv view ...          compatibility alias for `cv open`")
+            self._say("  cv view cover NAME   build if needed and open a cover letter")
+            self._say("  cv build cv          build all three CVs")
+            self._say("  cv build cover NAME  build a cover letter or the explicit template")
+            self._say("  cv new cover NAME    create the older editable TODO template")
+            self._say("  cv edit ...          open source content in an editor")
+            self._say("  cv list [--all]      compatibility alias for `cv status`")
+            self._say("  cv doctor            detailed toolchain report")
+            self._say("  cv assets status|fetch")
+            self._say("  cv check [--verbose] run all PDF, ATS, and reproducibility checks")
+            self._say("  cv clean             remove generated files")
+            self._say()
+            self._say("Run `cv help COMMAND` for command-specific usage.")
+            return 0
+        parser = self.subparsers.choices.get(args.topic)
+        if not parser:
+            suggestion = difflib.get_close_matches(args.topic, self.subparsers.choices, n=1, cutoff=0.6)
+            hint = f" Did you mean `{suggestion[0]}`?" if suggestion else ""
+            raise CliError(f"There is no help topic `{args.topic}`.{hint}")
+        parser.print_help(self.out)
         return 0
 
 
@@ -897,14 +1650,26 @@ def main(
     stdout: TextIO | None = None,
     stderr: TextIO | None = None,
     input_fn: Callable[[str], str] = input,
+    isatty_fn: Callable[[], bool] | None = None,
+    today_fn: Callable[[], dt.date] = dt.date.today,
 ) -> int:
     """Run the command and convert expected failures into concise diagnostics."""
-    application = CVApplication(root, stdout=stdout, stderr=stderr, input_fn=input_fn)
+    application = CVApplication(
+        root,
+        stdout=stdout,
+        stderr=stderr,
+        input_fn=input_fn,
+        isatty_fn=isatty_fn,
+        today_fn=today_fn,
+    )
     try:
         return application.run(argv)
     except CliError as error:
         print(f"cv: {error}", file=stderr or sys.stderr)
         return 2
+    except UserCancelled:
+        print("Cancelled.", file=stdout or sys.stdout)
+        return 0
     except KeyboardInterrupt:
         print("cv: interrupted", file=stderr or sys.stderr)
         return 130

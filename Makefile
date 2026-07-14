@@ -4,7 +4,6 @@ LATEXMK := latexmk
 BUILD_DIR := build
 VARIANT ?= applied_scientist
 APP ?= template
-LOGOS ?= 1
 VERBOSE ?= 0
 
 CV_VARIANTS := applied_scientist ml_platform research_engineer
@@ -12,9 +11,7 @@ CV_LABEL_applied_scientist := Applied_Scientist
 CV_LABEL_ml_platform := ML_Platform
 CV_LABEL_research_engineer := Research_Engineer
 
-SHOW_LOGOS := $(if $(filter 0 false no,$(LOGOS)),false,true)
-NO_LOGO_SUFFIX := $(if $(filter false,$(SHOW_LOGOS)),_No_Logos,)
-CV_JOB := Levon_Rush_CV_$(CV_LABEL_$(VARIANT))$(NO_LOGO_SUFFIX)
+CV_JOB := Levon_Rush_CV_$(CV_LABEL_$(VARIANT))
 COVER_LABEL := $(if $(filter template,$(APP)),Template,$(subst -,_,$(APP)))
 COVER_JOB := Levon_Rush_Cover_Letter_$(COVER_LABEL)
 LATEXMK_QUIET := $(if $(filter 1 true yes,$(VERBOSE)),,-silent)
@@ -31,7 +28,7 @@ all: cvs cover-template
 
 cvs:
 	@set -e; for variant in $(CV_VARIANTS); do \
-		$(MAKE) --no-print-directory cv VARIANT=$$variant LOGOS=$(LOGOS) VERBOSE=$(VERBOSE); \
+		$(MAKE) --no-print-directory cv VARIANT=$$variant VERBOSE=$(VERBOSE); \
 	done
 
 covers: cover-template
@@ -45,7 +42,7 @@ cv:
 	@mkdir -p $(BUILD_DIR)
 	@echo "Building $(CV_JOB).pdf"
 	@$(LATEXMK) $(LATEXMK_QUIET) $(LATEX_FLAGS) -jobname=$(CV_JOB) \
-		-usepretex='\def\VariantContentFile{variants/$(VARIANT).tex}\def\ShowLogos{$(SHOW_LOGOS)}' \
+		-usepretex='\def\VariantContentFile{variants/$(VARIANT).tex}' \
 		src/cv.tex $(LATEXMK_REDIRECT) || { echo "Build failed; see $(BUILD_DIR)/$(CV_JOB).log" >&2; exit 1; }
 
 cover:
@@ -56,7 +53,7 @@ cover:
 	@mkdir -p $(BUILD_DIR)
 	@echo "Building $(COVER_JOB).pdf"
 	@$(LATEXMK) $(LATEXMK_QUIET) $(LATEX_FLAGS) -jobname=$(COVER_JOB) \
-		-usepretex='\def\ApplicationFile{applications/$(APP).tex}\def\ShowLogos{false}' \
+		-usepretex='\def\ApplicationFile{applications/$(APP).tex}' \
 		src/cover_letter.tex $(LATEXMK_REDIRECT) || { echo "Build failed; see $(BUILD_DIR)/$(COVER_JOB).log" >&2; exit 1; }
 
 cover-template:
@@ -66,7 +63,6 @@ check:
 	@python3 -m unittest discover -s tests
 	@$(MAKE) --no-print-directory reproducibility VERBOSE=$(VERBOSE)
 	@$(MAKE) --no-print-directory all VERBOSE=$(VERBOSE)
-	@$(MAKE) --no-print-directory cvs LOGOS=0 VERBOSE=$(VERBOSE)
 	@python3 scripts/check_assets.py
 	@python3 scripts/check_pdf.py --proof
 
