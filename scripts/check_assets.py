@@ -379,18 +379,14 @@ def validate_tex_usage(records: list[dict[str, object]]) -> list[str]:
 
     for variant in sorted(VARIANTS.glob("*.tex")):
         content = variant.read_text(encoding="utf-8")
-        pages = re.split(r"\\newpage", content)
-        if len(pages) != 3:
-            errors.append(f"{variant.name}: expected three explicit page compositions")
-            continue
         if "\\PageBrand" in content:
             errors.append(f"{variant.name}: legacy page-top brand header is still present")
         if re.search(r"\\(?:HunterLogo|NibLogo|UniversityLogo)\b", content):
             errors.append(f"{variant.name}: logos must be attached to organisation entries")
-        if not re.search(r"\\Hunter(?:Applied|Platform|Research)Experience\b", pages[0]):
-            errors.append(f"{variant.name}: page 1 does not invoke the branded Hunter role")
-        if not re.search(r"\\NibExperience(?:Standard|Platform)\b", pages[1]):
-            errors.append(f"{variant.name}: page 2 does not invoke the branded prior experience")
+        if not re.search(r"\\Hunter(?:Applied|Platform|Research)Experience\b", content):
+            errors.append(f"{variant.name}: does not invoke the branded Hunter role")
+        if not re.search(r"\\NibExperience(?:Standard|Platform)\b", content):
+            errors.append(f"{variant.name}: does not invoke the branded prior experience")
 
     cover = (ROOT / "src" / "cover_letter.tex").read_text(encoding="utf-8")
     if re.search(

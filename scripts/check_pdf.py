@@ -96,8 +96,16 @@ def command_output(args: list[str], *, check: bool = True) -> str:
     return completed.stdout
 
 
-def expected_pages(path: Path) -> int:
-    return 1 if "cover_letter" in path.name.lower() else 3
+def page_bounds(path: Path) -> tuple[int, int]:
+    return (1, 1) if "cover_letter" in path.name.lower() else (2, 4)
+
+
+def reported_page_count(path: Path) -> int:
+    info = command_output(["pdfinfo", str(path)])
+    match = re.search(r"^Pages:\s+(\d+)\s*$", info, re.MULTILINE)
+    if not match:
+        raise RuntimeError(f"pdfinfo did not report a page count for {path}")
+    return int(match.group(1))
 
 
 def inspect_geometry(path: Path, result: Result) -> None:
@@ -108,10 +116,12 @@ def inspect_geometry(path: Path, result: Result) -> None:
     )
     if not page_match:
         result.error("pdfinfo did not report a page count")
-    elif int(page_match.group(1)) != expected_pages(path):
-        result.error(
-            f"expected {expected_pages(path)} page(s), found {page_match.group(1)}"
-        )
+    else:
+        page_count = int(page_match.group(1))
+        minimum, maximum = page_bounds(path)
+        if not minimum <= page_count <= maximum:
+            expected = str(minimum) if minimum == maximum else f"{minimum}--{maximum}"
+            result.error(f"expected {expected} page(s), found {page_count}")
     if not size_match:
         result.error("pdfinfo did not report page dimensions")
     else:
@@ -388,9 +398,10 @@ def make_proofs(path: Path, proof_dir: Path, result: Result) -> None:
         pgm_prefix = Path(temporary) / "page"
         command_output(["pdftoppm", "-gray", "-r", "72", str(path), str(pgm_prefix)])
         pgm_paths = sorted(Path(temporary).glob("page-*.pgm"))
-        if len(pgm_paths) != expected_pages(path):
+        page_count = reported_page_count(path)
+        if len(pgm_paths) != page_count:
             result.error(
-                f"expected {expected_pages(path)} greyscale proof page(s), found {len(pgm_paths)}"
+                f"expected {page_count} greyscale proof page(s), found {len(pgm_paths)}"
             )
         for pgm_path in pgm_paths:
             inspect_pgm(pgm_path, result)

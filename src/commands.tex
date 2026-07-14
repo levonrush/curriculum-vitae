@@ -59,13 +59,16 @@
   \vspace{4.2pt}
 }
 
+\newcommand{\ContentGap}{\par\addvspace{8pt}}
+\newcommand{\RoleGap}{\par\addvspace{11pt}}
+
 \newcommand{\RoleCore}[5]{%
   \Needspace{4\baselineskip}
   {\fontsize{10.3}{12.5}\selectfont\bfseries #1\hfill
     \fontsize{9.7}{11.8}\selectfont\color{QuietColour}#4\par}
   \vspace{0.8pt}
-  {\fontsize{9.7}{11.8}\selectfont\color{SectionColour}#2%
-    \ifstrempty{#3}{}{\enspace\textcolor{RuleColour}{|}\enspace #3}#5\par}
+  {\fontsize{9.7}{11.8}\selectfont\color{SectionColour}#5#2%
+    \ifstrempty{#3}{}{\enspace\textcolor{RuleColour}{|}\enspace #3}\par}
   \vspace{1pt}
 }
 
@@ -117,9 +120,9 @@
 \newcommand{\InlineLogoImage}[1]{%
   \ifcvlogos
     \IfFileExists{.vendor/logos/#1}{%
-      \nobreak\hspace{1.3mm}%
       \raisebox{-1.75mm}[0pt][0pt]{%
         \includegraphics[height=\OrganisationLogoHeight,keepaspectratio]{.vendor/logos/#1}}%
+      \nobreak\hspace{1.3mm}%
     }{}%
   \fi
 }
@@ -127,14 +130,14 @@
 \newcommand{\InlineUniversityLogo}{%
   \ifcvlogos
     \IfFileExists{.vendor/logos/university-newcastle.pdf}{%
-      \nobreak\hspace{1.3mm}%
       \raisebox{-1.75mm}[0pt][0pt]{%
         \includegraphics[height=\OrganisationLogoHeight,keepaspectratio]{.vendor/logos/university-newcastle.pdf}}%
+      \nobreak\hspace{1.3mm}%
     }{%
       \IfFileExists{.vendor/logos/university-newcastle.png}{%
-        \nobreak\hspace{1.3mm}%
         \raisebox{-1.75mm}[0pt][0pt]{%
           \includegraphics[height=\OrganisationLogoHeight,keepaspectratio]{.vendor/logos/university-newcastle.png}}%
+        \nobreak\hspace{1.3mm}%
       }{}%
     }%
   \fi

@@ -1,7 +1,7 @@
 # Levon Rush — CV and cover-letter system
 
-A local, version-controlled XeLaTeX system for three-page A4 technical CVs and
-one-page cover letters. The friendly `cv` command wraps all document tooling;
+A local, version-controlled XeLaTeX system for A4 technical CVs and one-page
+cover letters. The friendly `cv` command wraps all document tooling;
 ordinary use does not require knowing LaTeX or Make.
 
 ## Quick start
@@ -70,8 +70,10 @@ A4 page.
 - `research_engineer` gives earlier prominence to the PhD, sampling-regime
   research, uncertainty, constraints, and live-industry validation.
 
-Each variant is exactly three A4 pages. Employer names always remain readable
-text. The decorative marks use their official supplied colours (including the
+Each variant currently renders as three A4 pages, with compact fixed spacing
+rather than stretch-to-fill gaps. Page count is allowed to move between two and
+four as content changes. Employer names always remain readable text. The
+decorative marks use their official supplied colours (including the
 University's black-and-white primary mark) and can be disabled without changing
 the extracted content.
 
@@ -116,7 +118,7 @@ logo-enabled PDF.
 `cv check` validates all documents and the command-line interface. Among other
 things it checks:
 
-- three A4 pages per CV and one A4 page per cover letter;
+- two to four A4 pages per CV and exactly one A4 page per cover letter;
 - embedded fonts with Unicode maps;
 - sensible `pdftotext` reading order;
 - identical text in logo and no-logo variants;
