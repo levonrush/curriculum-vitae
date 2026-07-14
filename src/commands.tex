@@ -59,15 +59,18 @@
   \vspace{4.2pt}
 }
 
-\newcommand{\Role}[4]{%
+\newcommand{\RoleCore}[5]{%
   \Needspace{4\baselineskip}
   {\fontsize{10.3}{12.5}\selectfont\bfseries #1\hfill
     \fontsize{9.7}{11.8}\selectfont\color{QuietColour}#4\par}
   \vspace{0.8pt}
   {\fontsize{9.7}{11.8}\selectfont\color{SectionColour}#2%
-    \ifstrempty{#3}{}{\enspace\textcolor{RuleColour}{|}\enspace #3}\par}
+    \ifstrempty{#3}{}{\enspace\textcolor{RuleColour}{|}\enspace #3}#5\par}
   \vspace{1pt}
 }
+
+\newcommand{\Role}[4]{\RoleCore{#1}{#2}{#3}{#4}{}}
+\newcommand{\RoleWithLogo}[5]{\RoleCore{#1}{#2}{#3}{#4}{#5}}
 
 \newcommand{\Degree}[3]{%
   \Needspace{2.5\baselineskip}
@@ -109,38 +112,37 @@
 }
 \newcommand{\CVBulletsEnd}{\end{list}}
 
-\newcommand{\LogoImage}[2]{%
+\newcommand{\OrganisationLogoHeight}{5.5mm}
+
+\newcommand{\InlineLogoImage}[1]{%
   \ifcvlogos
-    \IfFileExists{.vendor/logos/#1}{\includegraphics[width=#2]{.vendor/logos/#1}}{}%
+    \IfFileExists{.vendor/logos/#1}{%
+      \nobreak\hspace{1.3mm}%
+      \raisebox{-1.75mm}[0pt][0pt]{%
+        \includegraphics[height=\OrganisationLogoHeight,keepaspectratio]{.vendor/logos/#1}}%
+    }{}%
   \fi
 }
 
-\newcommand{\UniversityLogo}[1]{%
+\newcommand{\InlineUniversityLogo}{%
   \ifcvlogos
     \IfFileExists{.vendor/logos/university-newcastle.pdf}{%
-      \includegraphics[width=#1]{.vendor/logos/university-newcastle.pdf}%
+      \nobreak\hspace{1.3mm}%
+      \raisebox{-1.75mm}[0pt][0pt]{%
+        \includegraphics[height=\OrganisationLogoHeight,keepaspectratio]{.vendor/logos/university-newcastle.pdf}}%
     }{%
       \IfFileExists{.vendor/logos/university-newcastle.png}{%
-        \includegraphics[width=#1]{.vendor/logos/university-newcastle.png}%
+        \nobreak\hspace{1.3mm}%
+        \raisebox{-1.75mm}[0pt][0pt]{%
+          \includegraphics[height=\OrganisationLogoHeight,keepaspectratio]{.vendor/logos/university-newcastle.png}}%
       }{}%
     }%
   \fi
 }
 
-\newcommand{\PageBrand}[3]{%
-  \noindent
-  \begin{minipage}[c]{0.62\textwidth}
-    {\fontsize{8.0}{9.5}\selectfont\bfseries\color{SectionColour}\MakeUppercase{#1}\par}
-    {\fontsize{7.8}{9.2}\selectfont\color{QuietColour}#2\par}
-  \end{minipage}%
-  \hfill
-  \begin{minipage}[c]{0.34\textwidth}
-    \RaggedLeft #3
-  \end{minipage}
-  \vspace{5pt}
-  \textcolor{RuleColour}{\rule{\textwidth}{0.45pt}}\par
-  \vspace{7pt}
-}
+\newcommand{\HunterLogo}{\InlineLogoImage{hunter-water.png}}
+\newcommand{\NibLogo}{\InlineLogoImage{nib.pdf}}
+\newcommand{\UniversityLogo}{\InlineUniversityLogo}
 
 \newcommand{\LogoNotice}{%
   \vfill

@@ -103,10 +103,13 @@ Confirm any required brand approval before external distribution. Use
 `cv build cv --no-logos` when a portal or recipient prefers a strictly text-only
 document.
 
-The University's approved horizontal artwork is staff-gated. The default build
-therefore uses its exact public square mark at the published 40 mm minimum; no
-third-party recreation is substituted. See `THIRD_PARTY_NOTICES.md` for the
-source and approval caveat.
+The marks are compact 5.5 mm-high accents beside the relevant organisation
+names rather than page headers. This requested inline treatment is below nib's
+and the University's published print minima. It is therefore a local layout
+preview, not a claim of brand compliance. The University's approved horizontal
+artwork remains staff-gated, so the exact public square mark is used rather than
+a third-party recreation. See `THIRD_PARTY_NOTICES.md` before distributing a
+logo-enabled PDF.
 
 ## Quality checks
 

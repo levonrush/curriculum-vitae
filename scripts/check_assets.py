@@ -19,12 +19,45 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "assets" / "logo_sources.json"
 VENDOR = ROOT / ".vendor" / "logos"
 VARIANTS = ROOT / "variants"
+COMMANDS = ROOT / "src" / "commands.tex"
 SHA256_RE = re.compile(r"[0-9a-f]{64}")
 
-EXPECTED_USES = {
-    "hunter_water": (0, re.compile(r"\\LogoImage\{hunter-water\.png\}\{([0-9.]+)mm\}")),
-    "nib": (1, re.compile(r"\\LogoImage\{nib\.pdf\}\{([0-9.]+)mm\}")),
-    "university_newcastle": (2, re.compile(r"\\UniversityLogo\{([0-9.]+)mm\}")),
+EXPECTED_PLACEMENTS = {
+    "hunter_water": {
+        "macro": "HunterLogo",
+        "source": ROOT / "src" / "content" / "experience_hunter_water.tex",
+        "role": re.compile(
+            r"\\RoleWithLogo\{Lead Machine Learning Scientist\}"
+            r"\{Hunter Water\}\{Intelligent Networks\}"
+            r"\{August 2024--present\}\{\\HunterLogo\}"
+        ),
+        "definition": re.compile(
+            r"\\newcommand\{\\HunterLogo\}\{\\InlineLogoImage\{hunter-water\.png\}\}"
+        ),
+    },
+    "nib": {
+        "macro": "NibLogo",
+        "source": ROOT / "src" / "content" / "experience_nib.tex",
+        "role": re.compile(
+            r"\\RoleWithLogo\{Lead Data Scientist\}\{nib Health Funds\}"
+            r"\{Machine learning\}\{September 2022--January 2024\}\{\\NibLogo\}"
+        ),
+        "definition": re.compile(
+            r"\\newcommand\{\\NibLogo\}\{\\InlineLogoImage\{nib\.pdf\}\}"
+        ),
+    },
+    "university_newcastle": {
+        "macro": "UniversityLogo",
+        "source": ROOT / "src" / "content" / "experience_nib.tex",
+        "role": re.compile(
+            r"\\RoleWithLogo\{Student Information Assistant\}"
+            r"\{University of Newcastle\}\{Marketing and engagement\}"
+            r"\{March 2012--March 2015\}\{\\UniversityLogo\}"
+        ),
+        "definition": re.compile(
+            r"\\newcommand\{\\UniversityLogo\}\{\\InlineUniversityLogo\}"
+        ),
+    },
 }
 
 
@@ -202,7 +235,7 @@ def validate_manifest() -> tuple[list[dict[str, object]], list[str]]:
     if not isinstance(records, list) or len(records) != 3:
         return [], ["logo manifest must contain exactly three logo records"]
     identifiers = {str(record.get("id")) for record in records if isinstance(record, dict)}
-    if identifiers != set(EXPECTED_USES):
+    if identifiers != set(EXPECTED_PLACEMENTS):
         errors.append(f"unexpected logo identifiers: {', '.join(sorted(identifiers))}")
     return records, errors
 
@@ -254,13 +287,32 @@ def validate_record(record: dict[str, object]) -> list[str]:
         errors.append(f"{identifier}: could not inspect dimensions: {error}")
 
     minimum = record.get("minimum_width_mm")
-    display = record.get("default_width_mm")
-    if not isinstance(display, (int, float)) or display <= 0:
+    display_width = record.get("default_width_mm")
+    display_height = record.get("default_height_mm")
+    if not isinstance(display_width, (int, float)) or display_width <= 0:
         errors.append(f"{identifier}: default display width is missing or invalid")
-    elif isinstance(minimum, (int, float)) and display < minimum:
+    if not isinstance(display_height, (int, float)) or display_height <= 0:
+        errors.append(f"{identifier}: default display height is missing or invalid")
+    if (
+        isinstance(display_width, (int, float))
+        and isinstance(display_height, (int, float))
+        and isinstance(expected_ratio, (int, float))
+        and abs(display_width / display_height - float(expected_ratio)) > tolerance
+    ):
         errors.append(
-            f"{identifier}: default width {display} mm is below the {minimum} mm minimum"
+            f"{identifier}: configured display box changes the pinned aspect ratio"
         )
+    if (
+        isinstance(minimum, (int, float))
+        and isinstance(display_width, (int, float))
+        and display_width < minimum
+    ):
+        exception = record.get("minimum_size_exception")
+        if not isinstance(exception, str) or not exception.strip():
+            errors.append(
+                f"{identifier}: default width {display_width:g} mm is below the "
+                f"{minimum:g} mm minimum without a documented exception"
+            )
 
     colour_mode = record.get("colour_mode")
     if colour_mode == "full_colour":
@@ -289,33 +341,62 @@ def validate_record(record: dict[str, object]) -> list[str]:
 def validate_tex_usage(records: list[dict[str, object]]) -> list[str]:
     errors: list[str] = []
     by_id = {str(record["id"]): record for record in records}
+    commands = COMMANDS.read_text(encoding="utf-8")
+    height_match = re.search(
+        r"\\newcommand\{\\OrganisationLogoHeight\}\{([0-9.]+)mm\}", commands
+    )
+    if not height_match:
+        errors.append("commands.tex: compact organisation-logo height is not declared")
+        rendered_height = None
+    else:
+        rendered_height = float(height_match.group(1))
+
+    for identifier, placement in EXPECTED_PLACEMENTS.items():
+        record = by_id[identifier]
+        expected_height = record.get("default_height_mm")
+        if (
+            rendered_height is not None
+            and isinstance(expected_height, (int, float))
+            and abs(rendered_height - float(expected_height)) > 0.01
+        ):
+            errors.append(
+                f"{identifier}: TeX height {rendered_height:g} mm differs from "
+                f"manifest height {float(expected_height):g} mm"
+            )
+        definition = placement["definition"]
+        if not isinstance(definition, re.Pattern) or len(definition.findall(commands)) != 1:
+            errors.append(f"commands.tex: {identifier} asset macro is missing or duplicated")
+        source = placement["source"]
+        if not isinstance(source, Path):
+            errors.append(f"{identifier}: placement source is invalid")
+            continue
+        content = source.read_text(encoding="utf-8")
+        role_pattern = placement["role"]
+        if not isinstance(role_pattern, re.Pattern) or len(role_pattern.findall(content)) != 1:
+            errors.append(
+                f"{source.relative_to(ROOT)}: {identifier} must appear once beside its organisation"
+            )
+
     for variant in sorted(VARIANTS.glob("*.tex")):
         content = variant.read_text(encoding="utf-8")
         pages = re.split(r"\\newpage", content)
         if len(pages) != 3:
             errors.append(f"{variant.name}: expected three explicit page compositions")
             continue
-        for identifier, (page_index, pattern) in EXPECTED_USES.items():
-            all_matches = pattern.findall(content)
-            page_matches = pattern.findall(pages[page_index])
-            if len(all_matches) != 1 or len(page_matches) != 1:
-                errors.append(
-                    f"{variant.name}: {identifier} must appear exactly once on page {page_index + 1}"
-                )
-                continue
-            width = float(page_matches[0])
-            expected = float(by_id[identifier]["default_width_mm"])
-            minimum = by_id[identifier].get("minimum_width_mm")
-            if abs(width - expected) > 0.01:
-                errors.append(
-                    f"{variant.name}: {identifier} renders at {width:g} mm, expected {expected:g} mm"
-                )
-            if isinstance(minimum, (int, float)) and width < float(minimum):
-                errors.append(
-                    f"{variant.name}: {identifier} is below its {float(minimum):g} mm minimum"
-                )
+        if "\\PageBrand" in content:
+            errors.append(f"{variant.name}: legacy page-top brand header is still present")
+        if re.search(r"\\(?:HunterLogo|NibLogo|UniversityLogo)\b", content):
+            errors.append(f"{variant.name}: logos must be attached to organisation entries")
+        if not re.search(r"\\Hunter(?:Applied|Platform|Research)Experience\b", pages[0]):
+            errors.append(f"{variant.name}: page 1 does not invoke the branded Hunter role")
+        if not re.search(r"\\NibExperience(?:Standard|Platform)\b", pages[1]):
+            errors.append(f"{variant.name}: page 2 does not invoke the branded prior experience")
+
     cover = (ROOT / "src" / "cover_letter.tex").read_text(encoding="utf-8")
-    if re.search(r"\\(?:LogoImage|UniversityLogo)\b", cover):
+    if re.search(
+        r"\\(?:InlineLogoImage|InlineUniversityLogo|HunterLogo|NibLogo|UniversityLogo|RoleWithLogo)\b",
+        cover,
+    ):
         errors.append("cover letter must not display former-employer or institution logos")
     return errors
 
@@ -336,7 +417,7 @@ def main() -> int:
             print(f"FAIL {error}", file=sys.stderr)
         print(f"\n{len(errors)} asset validation error(s)", file=sys.stderr)
         return 1
-    print("PASS logo sources, checksums, colour, aspect ratios, and display sizes")
+    print("PASS logo sources, checksums, colour, aspect ratios, and inline placement")
     return 0
 
 
