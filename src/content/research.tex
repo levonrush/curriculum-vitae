@@ -1,30 +1,22 @@
 \newcommand{\PhDEntry}{%
-  \Role{Doctor of Philosophy, Computer Science}{University of Newcastle}{Ongoing research}{Ongoing}
-  {\fontsize{10}{12.8}\selectfont\RaggedRight
-    \textbf{Working theme: Learning across sampling regimes in water monitoring.}
-    Investigates how machine-learning systems can transfer from sparse, manually collected infrastructure observations to dense sensor streams while preserving uncertainty, interpretability, physical constraints and operational usefulness. The work is positioned as a computer-science contribution and grounded in live water-system problems, with parts developed through Hunter Water's production ML environment.\par}
-  \vspace{4pt}
+  \Role{Doctor of Philosophy, Computer Science}{University of Newcastle}{Learning across sampling regimes in water monitoring}{Ongoing}
   \CVBulletsStart
-    \item Studies domain adaptation under incompatible sampling regimes and constrained reconstruction of daily consumption from sparse manual readings using dense digital-meter observations for training and validation.
-    \item Technical themes include probabilistic modelling, uncertainty calibration, temporal modelling, physics-informed constraints, sensor information gain and operational validation.
+    \item Developed a transformer-based constrained conditional-diffusion model that reconstructs multiple plausible daily water-consumption histories from sparse meter-read totals, enforcing non-negativity and exact mass balance throughout sampling.
+    \item Benchmarked point accuracy, CRPS, calibration and trajectory realism against deterministic, gradient-boosting and empirical baselines on held-out digital-meter observations; related work examines time-series domain adaptation across incompatible sampling regimes.
   \CVBulletsEnd
 }
 
-\newcommand{\PhDEntryCompact}{%
-  \Role{Doctor of Philosophy, Computer Science}{University of Newcastle}{Ongoing research}{Ongoing}
-  {\fontsize{10}{12.8}\selectfont\RaggedRight
-    \textbf{Learning across sampling regimes in water monitoring.}
-    Researches transfer from sparse manual infrastructure observations to dense sensor streams while preserving uncertainty, interpretability, physical constraints and operational value. The computer-science work is grounded in live water-system problems and parts are developed through Hunter Water's production ML environment.\par}
-  \vspace{3pt}
-  \CVBulletsStart
-    \item Current studies address failure modes in time-series domain adaptation and constrained daily-consumption reconstruction from sparse meter readings.
-  \CVBulletsEnd
-}
+\newcommand{\PhDEntryCompact}{\PhDEntry}
 
-\newcommand{\SelectedPublication}{%
-  {\fontsize{9.9}{12.7}\selectfont\RaggedRight
-    Warburton, T. M., Rush, L. D., Cullen, E. G. R., Wiener, J. H., McManus, B. T. K., Heath, L., \& Evans, D. (2023). The impact of homelessness, substance use, and mental illness on surgical inpatient outcomes in Australia. \textit{Asia Pacific Journal of Public Health, 35}(5), 335--341.
-    \href{https://doi.org/10.1177/10105395231175563}{https://doi.org/10.1177/10105395231175563}\par}
+\newcommand{\SelectedResearchOutputs}{%
+  {\fontsize{9.4}{12.1}\selectfont\RaggedRight
+    Lee, R. R. P., Douglas, A., \textbf{Rush, L. D.}, \& Lowes, L. (2026). Improving multidisciplinary communication through daily preoperative team huddles: A quality improvement initiative in Australian operating theatres. \textit{Perioperative Care and Operating Room Management, 42}, 100595. \href{https://doi.org/10.1016/j.pcorm.2025.100595}{doi:10.1016/j.pcorm.2025.100595}\par
+    \vspace{2.2pt}
+    Warburton, T. M., \textbf{Rush, L. D.}, et al. (2023). The impact of homelessness, substance use, and mental illness on surgical inpatient outcomes in Australia. \textit{Asia Pacific Journal of Public Health, 35}(5), 335--341. \href{https://doi.org/10.1177/10105395231175563}{doi:10.1177/10105395231175563}\par
+    \vspace{2.2pt}
+    \textbf{Rush, L.} (2026). \textit{From projects to platform: Rising mains ML case study}. Conference presentation, Ozwater'26, Australian Water Association, Brisbane.\par
+    \vspace{2.2pt}
+    \textbf{Open-source system:} \href{https://github.com/levonrush/footy-tipper}{Footy Tipper} --- an R, Python and SQLite prediction and calibrated-simulation pipeline with scheduled GitHub Actions and automated email and web delivery.\par}
 }
 
 \newcommand{\ResearchThemes}{%

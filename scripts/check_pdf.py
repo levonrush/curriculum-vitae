@@ -97,7 +97,7 @@ def command_output(args: list[str], *, check: bool = True) -> str:
 
 
 def page_bounds(path: Path) -> tuple[int, int]:
-    return (1, 1) if "cover_letter" in path.name.lower() else (2, 4)
+    return (1, 1) if "cover_letter" in path.name.lower() else (2, 2)
 
 
 def reported_page_count(path: Path) -> int:
@@ -215,31 +215,20 @@ def inspect_text(path: Path, result: Result) -> None:
             "hunter water",
             "nib health funds",
             "doctor of philosophy",
+            "aws sagemaker",
+            "python, r, sql",
             "technical capabilities",
             "community leadership",
         ):
             if required not in normalised:
                 result.error(f"required CV content is missing: {required}")
-        if "ml_platform" in path.name.lower():
-            expected_order = [
-                "current experience",
-                "platform capability",
-                "applied ml portfolio",
-                "previous experience",
-                "doctoral research",
-                "selected publication",
-                "education",
-                "technical capabilities",
-                "community leadership",
-            ]
-        elif "research_engineer" in path.name.lower():
+        if "research_engineer" in path.name.lower():
             expected_order = [
                 "current experience",
                 "doctoral research",
-                "research engineering practice",
                 "previous experience",
-                "research themes",
-                "selected publication",
+                "earlier experience",
+                "selected outputs",
                 "education",
                 "technical capabilities",
                 "community leadership",
@@ -247,11 +236,10 @@ def inspect_text(path: Path, result: Result) -> None:
         else:
             expected_order = [
                 "current experience",
-                "applied ml portfolio",
-                "platform and technical leadership",
                 "previous experience",
+                "earlier experience",
                 "doctoral research",
-                "selected publication",
+                "selected outputs",
                 "education",
                 "technical capabilities",
                 "community leadership",
@@ -264,6 +252,8 @@ def inspect_text(path: Path, result: Result) -> None:
             "nib health funds",
             "lead data scientist",
             "digital data scientist",
+            "earlier experience",
+            "nib health funds",
             "digital analyst",
             "university of newcastle",
             "student information assistant",
@@ -306,7 +296,7 @@ def inspect_urls(path: Path, result: Result) -> None:
             result.error(f"malformed email URL annotation: {url}")
         elif parsed.scheme == "tel" and not re.fullmatch(r"\+[0-9]{8,15}", parsed.path):
             result.error(f"malformed telephone URL annotation: {url}")
-    expected_count = 4 if "cover_letter" in path.name.lower() else 5
+    expected_count = 4 if "cover_letter" in path.name.lower() else 7
     if len(urls) != expected_count:
         result.error(f"expected {expected_count} URL annotations, found {len(urls)}")
     result.note(f"{len(urls)} URL annotation(s)")

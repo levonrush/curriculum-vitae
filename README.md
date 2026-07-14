@@ -99,11 +99,11 @@ reference.
 - `research_engineer` gives earlier prominence to the PhD, sampling-regime
   research, uncertainty, constraints, and live-industry validation.
 
-Each variant currently renders as three A4 pages, with compact fixed spacing
-rather than stretch-to-fill gaps. Page count is allowed to move between two and
-four as content changes. Employer names always remain readable text. The
-decorative marks use their official supplied colours (including the
-University's black-and-white primary mark) alongside those names.
+Each variant renders as exactly two A4 pages, using evidence-dense experience
+and research entries rather than repeated capability summaries. Employer names
+always remain readable text. The decorative marks use their official supplied
+colours (including the University's black-and-white primary mark) alongside
+those names.
 
 ## Updating content
 
@@ -136,20 +136,20 @@ employment and education relationships. Confirm any required brand approval
 before external distribution, and do not distribute a CV containing them when
 approval is required but has not been obtained.
 
-The marks are optically balanced at roughly 6 mm high immediately after each
-organisation name, in dedicated company headers above the relevant roles rather
-than page headers. This requested treatment is below nib's and the University's
-published print minima and is not a claim of brand compliance. The University's
-approved horizontal artwork remains staff-gated, so the exact public square
-mark is used rather than a third-party recreation. See `THIRD_PARTY_NOTICES.md`
-before distributing any CV PDF.
+The marks are optically balanced at roughly 6 mm high at the far right of
+dedicated company headers above the relevant roles rather than in page headers.
+This requested treatment is below nib's and the University's published print
+minima and is not a claim of brand compliance. The University's approved
+horizontal artwork remains staff-gated, so the exact public square mark is used
+rather than a third-party recreation. See `THIRD_PARTY_NOTICES.md` before
+distributing any CV PDF.
 
 ## Quality checks
 
 `cv check` validates all documents and the command-line interface. Among other
 things it checks:
 
-- two to four A4 pages per CV and exactly one A4 page per cover letter;
+- exactly two A4 pages per CV and exactly one A4 page per cover letter;
 - embedded fonts with Unicode maps;
 - sensible `pdftotext` reading order;
 - valid links and sanitised PDF metadata;

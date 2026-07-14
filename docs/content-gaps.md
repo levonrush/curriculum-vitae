@@ -16,7 +16,8 @@ cleared for external use.
 
 ## nib
 
-- Confirm Soma Factory adoption, products/users supported, and Levon’s precise ownership.
+- AWS SageMaker is confirmed as Soma Factory's compute platform; confirm its
+  adoption, products/users supported, and Levon’s precise ownership.
 - Add experiment, mentoring, team, production-integration, or commercial-impact figures if supportable.
 - Confirm the scope of reinforcement-learning and language-model contributions.
 - Do not restore “first end-to-end production ML solution” without evidence.
@@ -24,7 +25,8 @@ cleared for external use.
 ## Research and education
 
 - Supply the AusDM title, complete authorship, venue, year, DOI/link, and current status.
-- Recheck the three medical manuscripts labelled “under review” in October 2025.
+- The preoperative-team-huddles paper was published in March 2026; recheck the
+  remaining medical manuscripts labelled “under review” in October 2025.
 - Add PhD start or expected-completion dates only if useful.
 - Add degree years if desired.
 
