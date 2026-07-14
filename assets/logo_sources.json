@@ -22,8 +22,8 @@
       "aspect_ratio_tolerance": 0.01,
       "colour_mode": "full_colour",
       "minimum_width_mm": null,
-      "default_width_mm": 5.3,
-      "default_height_mm": 5.3,
+      "default_width_mm": 6.3,
+      "default_height_mm": 6.3,
       "minimum_size_exception": null,
       "official_asset": true,
       "redistribution": "Cached locally; do not commit or redistribute without reviewing Hunter Water's current terms.",
@@ -49,13 +49,13 @@
       "aspect_ratio_tolerance": 0.01,
       "colour_mode": "full_colour",
       "minimum_width_mm": 25,
-      "default_width_mm": 11.4859,
-      "default_height_mm": 4.7,
+      "default_width_mm": 13.6853,
+      "default_height_mm": 5.6,
       "minimum_size_exception": "Compact identification in the company header is intentionally below the partner-toolkit print minimum; obtain approval or use the no-logo build for external distribution.",
       "official_asset": true,
       "redistribution": "Cached locally; nib requires approval of content using the toolkit before publication.",
       "copyright_notice": "nib name and logo are owned by nib Group.",
-      "notes": "Keep clear space equal to the width of the letter 'i' on every side. The optically balanced 4.7 mm-high company-header treatment is approximately 11.49 mm wide and is not represented as compliant with the toolkit's 25 mm print minimum."
+      "notes": "Keep clear space equal to the width of the letter 'i' on every side. The optically balanced 5.6 mm-high company-header treatment is approximately 13.69 mm wide and is not represented as compliant with the toolkit's 25 mm print minimum."
     },
     {
       "id": "university_newcastle",
@@ -90,13 +90,13 @@
       "aspect_ratio_tolerance": 0.01,
       "colour_mode": "official_black_white",
       "minimum_width_mm": 40,
-      "default_width_mm": 5.3,
-      "default_height_mm": 5.3,
+      "default_width_mm": 6.3,
+      "default_height_mm": 6.3,
       "minimum_size_exception": "Compact identification in the University company header is intentionally below the published square-mark minimum; obtain approval or use the no-logo build for external distribution.",
       "official_asset": true,
       "redistribution": "Cached locally; the approved asset library is staff-gated and external use should be confirmed with the University.",
       "copyright_notice": "© The University of Newcastle",
-      "notes": "The public brand-identity guidance sets a 40 mm minimum for the square mark. The requested alternative/restricted-space horizontal artwork is only available through the staff-gated approved asset library, so no unauthoritative third-party substitute is cached. The live official asset was Cloudflare-protected during setup, so an Internet Archive capture dated 2026-07-04 is pinned. The optically balanced 5.3 mm company-header treatment is a documented compact-layout exception, not a claim of brand compliance; obtain approval or use the no-logo build before external distribution."
+      "notes": "The public brand-identity guidance sets a 40 mm minimum for the square mark. The requested alternative/restricted-space horizontal artwork is only available through the staff-gated approved asset library, so no unauthoritative third-party substitute is cached. The live official asset was Cloudflare-protected during setup, so an Internet Archive capture dated 2026-07-04 is pinned. The optically balanced 6.3 mm company-header treatment is a documented compact-layout exception, not a claim of brand compliance; obtain approval or use the no-logo build before external distribution."
     }
   ]
 }

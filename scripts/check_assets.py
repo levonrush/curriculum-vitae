@@ -26,31 +26,31 @@ EXPECTED_PLACEMENTS = {
     "hunter_water": {
         "source": ROOT / "src" / "content" / "experience_hunter_water.tex",
         "placement": re.compile(
-            r"\\EmployerHeader\{\\HunterLogo\}\{Hunter Water\}"
+            r"\\EmployerHeader\{Hunter Water\}\{\\HunterLogo\}"
         ),
         "definition": re.compile(
             r"\\newcommand\{\\HunterLogo\}\{\\InlineLogoImage"
-            r"\{hunter-water\.png\}\{([0-9.]+)mm\}\}"
+            r"\{hunter-water\.png\}\{([0-9.]+)mm\}\{[0-9.]+mm\}\}"
         ),
     },
     "nib": {
         "source": ROOT / "src" / "content" / "experience_nib.tex",
         "placement": re.compile(
-            r"\\EmployerHeader\{\\NibLogo\}\{nib Health Funds\}"
+            r"\\EmployerHeader\{nib Health Funds\}\{\\NibLogo\}"
         ),
         "definition": re.compile(
             r"\\newcommand\{\\NibLogo\}\{\\InlineLogoImage"
-            r"\{nib\.pdf\}\{([0-9.]+)mm\}\}"
+            r"\{nib\.pdf\}\{([0-9.]+)mm\}\{[0-9.]+mm\}\}"
         ),
     },
     "university_newcastle": {
         "source": ROOT / "src" / "content" / "experience_nib.tex",
         "placement": re.compile(
-            r"\\EmployerHeader\{\\UniversityLogo\}\{University of Newcastle\}"
+            r"\\EmployerHeader\{University of Newcastle\}\{\\UniversityLogo\}"
         ),
         "definition": re.compile(
             r"\\newcommand\{\\UniversityLogo\}\{\\InlineUniversityLogo"
-            r"\{([0-9.]+)mm\}\}"
+            r"\{([0-9.]+)mm\}\{[0-9.]+mm\}\}"
         ),
     },
 }

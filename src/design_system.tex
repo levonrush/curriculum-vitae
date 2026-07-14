@@ -1,6 +1,6 @@
 % Shared visual system for the CV and cover letter.
 % This file is loaded after \documentclass by both document entry points.
-\usepackage[a4paper,left=16mm,right=16mm,top=15mm,bottom=15mm]{geometry}
+\usepackage[a4paper,left=18mm,right=18mm,top=15mm,bottom=15mm]{geometry}
 \usepackage{fontspec}
 \usepackage{xcolor}
 \usepackage{graphicx}
@@ -51,12 +51,31 @@
 % enumitem and fancyhdr.
 \providecommand{\RaggedRight}{\raggedright}
 \providecommand{\RaggedLeft}{\raggedleft}
-\providecommand{\Needspace}[1]{\par\penalty-100\relax}
 \makeatletter
+% Local equivalent of needspace's non-starred command. It requests room for a
+% block without boxing the content or disturbing the one-column reading order.
+\newcommand{\Needspace}[1]{%
+  \par
+  \begingroup
+    \dimen@=#1\relax
+    \vskip\z@\@plus\dimen@
+    \penalty-100
+    \vskip\z@\@plus-\dimen@
+    \vskip\dimen@
+    \penalty9999
+    \vskip-\dimen@
+    \vskip\z@skip
+  \endgroup
+}
 \def\ps@cv{%
   \def\@oddhead{}\def\@evenhead{}%
-  \def\@oddfoot{\hbox to\textwidth{%
-    \fontsize{7.7}{9}\selectfont\color{QuietColour}Levon Rush\hfil\thepage}}%
+  \def\@oddfoot{%
+    \ifnum\value{page}>1
+      \hbox to\textwidth{%
+        \fontsize{7.7}{9}\selectfont\mdseries\color{QuietColour}Levon Rush\hfil\thepage}%
+    \else
+      \hfil
+    \fi}%
   \let\@evenfoot\@oddfoot
 }
 \makeatother

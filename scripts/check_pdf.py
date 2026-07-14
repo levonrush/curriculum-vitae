@@ -256,8 +256,20 @@ def inspect_text(path: Path, result: Result) -> None:
                 "technical capabilities",
                 "community leadership",
             ]
+        employment_order = [
+            "current experience",
+            "hunter water",
+            "lead machine learning scientist",
+            "previous experience",
+            "nib health funds",
+            "lead data scientist",
+            "digital data scientist",
+            "digital analyst",
+            "university of newcastle",
+            "student information assistant",
+        ]
         # Every Poppler extraction mode must retain the same single-column
-        # section order and the ATS-critical identity/employer strings.
+        # section order and employer-to-role hierarchy.
         for mode_name, text in (("default", plain), ("raw", raw), ("layout", layout)):
             lowered = normalise_text(text)
             for sentinel in ("levon rush", "hunter water", "nib health funds"):
@@ -265,6 +277,10 @@ def inspect_text(path: Path, result: Result) -> None:
                     result.error(f"{mode_name} extraction lost {sentinel!r}")
             if not ordered(text, expected_order):
                 result.error(f"{mode_name} extraction lost the expected section order")
+            if not ordered(text, employment_order):
+                result.error(
+                    f"{mode_name} extraction lost the expected employer-to-role order"
+                )
 
 
 def inspect_urls(path: Path, result: Result) -> None:
@@ -417,9 +433,17 @@ def compare_logo_pairs(paths: list[Path], results: dict[Path, Result]) -> None:
         no_logo = by_name.get(no_logo_name)
         if not no_logo:
             continue
-        if normalise_text(extract_text(path)) != normalise_text(extract_text(no_logo)):
-            results[path].error(f"text differs from {no_logo.name}")
-            results[no_logo].error(f"text differs from {path.name}")
+        modes = (("default", None), ("raw", "-raw"), ("layout", "-layout"))
+        for mode_name, mode in modes:
+            if normalise_text(extract_text(path, mode)) != normalise_text(
+                extract_text(no_logo, mode)
+            ):
+                results[path].error(
+                    f"{mode_name} text differs from {no_logo.name}"
+                )
+                results[no_logo].error(
+                    f"{mode_name} text differs from {path.name}"
+                )
 
 
 def discover_paths(arguments: list[str]) -> list[Path]:
