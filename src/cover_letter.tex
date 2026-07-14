@@ -1,0 +1,54 @@
+\documentclass[10pt,a4paper]{article}
+
+\input{src/design_system.tex}
+\input{src/commands.tex}
+\input{src/snippets/cover_letter/applied_science.tex}
+\input{src/snippets/cover_letter/ml_platform.tex}
+\input{src/snippets/cover_letter/research_engineering.tex}
+\input{src/snippets/cover_letter/principal_technical.tex}
+\input{src/snippets/cover_letter/infrastructure_utilities.tex}
+
+\providecommand{\ApplicationFile}{applications/template.tex}
+\input{\ApplicationFile}
+\providecommand{\EvidenceThree}{}
+\providecommand{\HiringManager}{Hiring Manager}
+
+\hypersetup{pdftitle={Levon Rush — Cover Letter — \Company}}
+
+\begin{document}
+\fontsize{10.1}{13}\selectfont
+\RaggedRight
+\LetterHeader
+
+{\fontsize{9.7}{11.8}\selectfont\color{QuietColour}\LetterDate\par}
+\vspace{8pt}
+{\bfseries\HiringManager\par}
+\Company\par
+\vspace{9pt}
+
+Dear \HiringManager,
+
+\vspace{8pt}
+I am applying for the \textbf{\RoleTitle} role with \textbf{\Company}. \OpeningReason
+
+\vspace{8pt}
+\EvidenceOne
+
+\vspace{8pt}
+\EvidenceTwo
+
+\ifdefempty{\EvidenceThree}{}{\vspace{8pt}\EvidenceThree}
+
+\vspace{8pt}
+\OrganisationFit
+
+\vspace{8pt}
+\ClosingParagraph
+
+\vspace{10pt}
+Yours sincerely,
+
+\vspace{12pt}
+{\bfseries Levon Rush}
+
+\end{document}

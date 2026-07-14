@@ -1,0 +1,26 @@
+# Generated document output
+build/
+
+# Locally cached third-party marks. Their sources and hashes are tracked,
+# but the marks themselves are not redistributed from this repository.
+.vendor/
+
+# TeX intermediates outside build/ (defensive)
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.xdv
+*.synctex.gz
+
+# Python/editor noise
+__pycache__/
+*.py[cod]
+.DS_Store
+.idea/
+.vscode/
+
+# Local source-document copies may contain third-party contact details.
+source/*.docx
+source/*.pdf

@@ -1,0 +1,68 @@
+% Shared visual system for the CV and cover letter.
+% This file is loaded after \documentclass by both document entry points.
+\usepackage[a4paper,left=16mm,right=16mm,top=15mm,bottom=15mm]{geometry}
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{etoolbox}
+\usepackage{hyperref}
+\IfFileExists{microtype.sty}{\usepackage[final]{microtype}}{}
+
+\defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\setmainfont[
+  Path=assets/fonts/ibm-plex-sans/,
+  Extension=.ttf,
+  UprightFont=*-Regular,
+  ItalicFont=*-Italic,
+  BoldFont=*-SemiBold,
+  BoldItalicFont=*-SemiBoldItalic
+]{IBMPlexSans}
+
+\definecolor{BodyColour}{HTML}{20272C}
+\definecolor{NameColour}{HTML}{29485F}
+\definecolor{SectionColour}{HTML}{4B6A80}
+\definecolor{RuleColour}{HTML}{A8B7C2}
+\definecolor{QuietColour}{HTML}{5C6870}
+
+\color{BodyColour}
+\urlstyle{same}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=SectionColour,
+  urlcolor=SectionColour,
+  pdfauthor={Levon Rush},
+  pdfsubject={Curriculum vitae and cover letter},
+  pdfkeywords={machine learning, applied science, research engineering},
+  pdfcreator={XeLaTeX},
+  pdfborder={0 0 0}
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\emergencystretch}{2em}
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+\hyphenpenalty=650
+\exhyphenpenalty=650
+
+% Keep the build compatible with a minimal TeX Live install. These small
+% definitions replace convenience-only packages such as ragged2e, needspace,
+% enumitem and fancyhdr.
+\providecommand{\RaggedRight}{\raggedright}
+\providecommand{\RaggedLeft}{\raggedleft}
+\providecommand{\Needspace}[1]{\par\penalty-100\relax}
+\makeatletter
+\def\ps@cv{%
+  \def\@oddhead{}\def\@evenhead{}%
+  \def\@oddfoot{\hbox to\textwidth{%
+    \fontsize{7.7}{9}\selectfont\color{QuietColour}Levon Rush\hfil\thepage}}%
+  \let\@evenfoot\@oddfoot
+}
+\makeatother
+\pagestyle{cv}
+\setlength{\footskip}{7mm}
+
+\providecommand{\ShowLogos}{true}
+\newif\ifcvlogos
+\ifdefstring{\ShowLogos}{true}{\cvlogostrue}{\cvlogosfalse}

@@ -1,0 +1,149 @@
+% Semantic building blocks shared by every document variant.
+\newcommand{\IdentityName}{Levon Rush}
+\newcommand{\IdentityLocation}{Newcastle, NSW, Australia}
+\newcommand{\IdentityPhoneDisplay}{+61 423 963 206}
+\newcommand{\IdentityPhoneLink}{+61423963206}
+\newcommand{\IdentityEmail}{levon_rush@hotmail.com}
+\newcommand{\IdentityEmailDisplay}{levon\_rush@hotmail.com}
+\newcommand{\IdentityGitHub}{github.com/levonrush}
+\newcommand{\IdentityMedium}{medium.com/@levonrush}
+
+\newcommand{\ContactLine}{%
+  \IdentityLocation
+  \enspace\textcolor{RuleColour}{|}\enspace
+  \href{tel:\IdentityPhoneLink}{\IdentityPhoneDisplay}%
+  \enspace\textcolor{RuleColour}{|}\enspace
+  \href{mailto:\IdentityEmail}{\IdentityEmailDisplay}%
+}
+
+\newcommand{\LinkLine}{%
+  \href{https://github.com/levonrush}{\IdentityGitHub}%
+  \enspace\textcolor{RuleColour}{|}\enspace
+  \href{https://medium.com/@levonrush}{\IdentityMedium}%
+}
+
+\newcommand{\CVHeader}[3]{%
+  {\fontsize{30}{31}\selectfont\bfseries\color{NameColour}\MakeUppercase{\IdentityName}\par}
+  \vspace{2.5pt}
+  {\fontsize{11.4}{13}\selectfont\bfseries\color{SectionColour}#1\par}
+  \vspace{1.5pt}
+  {\fontsize{9.7}{11.8}\selectfont\color{QuietColour}#2\par}
+  \vspace{5pt}
+  {\fontsize{9.7}{11.8}\selectfont\ContactLine\par}
+  \vspace{1.2pt}
+  {\fontsize{9.7}{11.8}\selectfont\LinkLine\par}
+  \vspace{7pt}
+  {\fontsize{10.1}{13}\selectfont\RaggedRight #3\par}
+  \vspace{8pt}
+}
+
+\newcommand{\LetterHeader}{%
+  {\fontsize{27}{29}\selectfont\bfseries\color{NameColour}\MakeUppercase{\IdentityName}\par}
+  \vspace{2pt}
+  {\fontsize{10.6}{12.5}\selectfont\bfseries\color{SectionColour}Applied machine-learning scientist\par}
+  \vspace{4pt}
+  {\fontsize{9.7}{11.8}\selectfont\ContactLine\par}
+  \vspace{1pt}
+  {\fontsize{9.7}{11.8}\selectfont\LinkLine\par}
+  \vspace{5pt}
+  \textcolor{RuleColour}{\rule{\textwidth}{0.55pt}}\par
+  \vspace{7pt}
+}
+
+\newcommand{\Section}[1]{%
+  \Needspace{3\baselineskip}
+  \vspace{4pt}
+  {\fontsize{9.7}{11.8}\selectfont\bfseries\color{SectionColour}\MakeUppercase{#1}\par}
+  \vspace{1.5pt}
+  \textcolor{RuleColour}{\rule{\textwidth}{0.45pt}}\par
+  \vspace{4.2pt}
+}
+
+\newcommand{\Role}[4]{%
+  \Needspace{4\baselineskip}
+  {\fontsize{10.3}{12.5}\selectfont\bfseries #1\hfill
+    \fontsize{9.7}{11.8}\selectfont\color{QuietColour}#4\par}
+  \vspace{0.8pt}
+  {\fontsize{9.7}{11.8}\selectfont\color{SectionColour}#2%
+    \ifstrempty{#3}{}{\enspace\textcolor{RuleColour}{|}\enspace #3}\par}
+  \vspace{1pt}
+}
+
+\newcommand{\Degree}[3]{%
+  \Needspace{2.5\baselineskip}
+  {\fontsize{9.7}{11.7}\selectfont\bfseries #1\hfill
+    \fontsize{9.7}{11.8}\selectfont\color{QuietColour}#3\par}
+  {\fontsize{9.7}{11.8}\selectfont\color{SectionColour}#2\par}
+  \vspace{3.4pt}
+}
+
+\newcommand{\CapabilityLine}[2]{%
+  \Needspace{2\baselineskip}
+  {\fontsize{9.7}{12.3}\selectfont\textbf{#1}\enspace #2\par}
+  \vspace{2.2pt}
+}
+
+\newcommand{\RoleContext}[1]{%
+  {\fontsize{9.7}{12.4}\selectfont\RaggedRight #1\par}
+  \vspace{1pt}
+}
+
+\newcommand{\LeadershipRole}[2]{%
+  {\fontsize{9.7}{11.9}\selectfont\textbf{#1}%
+    \enspace\textcolor{RuleColour}{|}\enspace
+    \textcolor{SectionColour}{#2}\par}
+  \vspace{2.4pt}
+}
+
+\newcommand{\CVBulletsStart}{%
+  \begin{list}{\textcolor{RuleColour}{\raisebox{0.15ex}{\scriptsize\textbullet}}}{%
+    \setlength{\leftmargin}{4.2mm}%
+    \setlength{\labelwidth}{2.5mm}%
+    \setlength{\labelsep}{1.7mm}%
+    \setlength{\itemsep}{2.3pt}%
+    \setlength{\topsep}{3.5pt}%
+    \setlength{\parsep}{0pt}%
+    \setlength{\partopsep}{0pt}%
+  }%
+  \fontsize{9.75}{12.5}\selectfont\RaggedRight
+}
+\newcommand{\CVBulletsEnd}{\end{list}}
+
+\newcommand{\LogoImage}[2]{%
+  \ifcvlogos
+    \IfFileExists{.vendor/logos/#1}{\includegraphics[width=#2]{.vendor/logos/#1}}{}%
+  \fi
+}
+
+\newcommand{\UniversityLogo}[1]{%
+  \ifcvlogos
+    \IfFileExists{.vendor/logos/university-newcastle.pdf}{%
+      \includegraphics[width=#1]{.vendor/logos/university-newcastle.pdf}%
+    }{%
+      \IfFileExists{.vendor/logos/university-newcastle.png}{%
+        \includegraphics[width=#1]{.vendor/logos/university-newcastle.png}%
+      }{}%
+    }%
+  \fi
+}
+
+\newcommand{\PageBrand}[3]{%
+  \noindent
+  \begin{minipage}[c]{0.62\textwidth}
+    {\fontsize{8.0}{9.5}\selectfont\bfseries\color{SectionColour}\MakeUppercase{#1}\par}
+    {\fontsize{7.8}{9.2}\selectfont\color{QuietColour}#2\par}
+  \end{minipage}%
+  \hfill
+  \begin{minipage}[c]{0.34\textwidth}
+    \RaggedLeft #3
+  \end{minipage}
+  \vspace{5pt}
+  \textcolor{RuleColour}{\rule{\textwidth}{0.45pt}}\par
+  \vspace{7pt}
+}
+
+\newcommand{\LogoNotice}{%
+  \vfill
+  {\fontsize{6.8}{8.2}\selectfont\color{QuietColour}
+    Organisation marks are shown for identification only. \textcopyright{} Hunter Water Corporation; nib and University of Newcastle marks remain the property of their respective owners.\par}
+}
