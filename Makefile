@@ -6,10 +6,11 @@ VARIANT ?= applied_scientist
 APP ?= template
 VERBOSE ?= 0
 
-CV_VARIANTS := applied_scientist ml_platform research_engineer
+CV_VARIANTS := applied_scientist ml_platform research_engineer football_intelligence
 CV_LABEL_applied_scientist := Applied_Scientist
 CV_LABEL_ml_platform := ML_Platform
 CV_LABEL_research_engineer := Research_Engineer
+CV_LABEL_football_intelligence := Football_Intelligence
 
 CV_JOB := Levon_Rush_CV_$(CV_LABEL_$(VARIANT))
 COVER_LABEL := $(if $(filter template,$(APP)),Template,$(subst -,_,$(APP)))

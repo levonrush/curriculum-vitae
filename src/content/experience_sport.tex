@@ -1,0 +1,22 @@
+% Elite-sport and sports-analytics experience. Used by the football-intelligence
+% variant only; the other three variants do not input these macros.
+
+% CONFIRM BEFORE SENDING: role title and dates are not yet supplied. The dates
+% field deliberately reads "Dates to confirm" so an unchecked draft cannot be
+% sent by accident. Outcome figures are omitted because none are documented.
+\newcommand{\KnightsRole}{%
+  \Role{Consulting Data Engineer}{Newcastle Knights}{Football department}{Dates to confirm}
+  \CVBulletsStart
+    \item Built the data pipelines behind the football department's reporting, from ingestion of match and performance sources through to a queryable store.
+    \item Automated recurring reporting so football staff received prepared outputs, working alongside the club statistician rather than around existing practice.
+  \CVBulletsEnd
+}
+
+\newcommand{\FootyTipperEntry}{%
+  \Role{Footy Tipper}{Open-source rugby-league prediction system}{\href{https://github.com/levonrush/footy-tipper}{github.com/levonrush/footy-tipper}}{Personal project}
+  \CVBulletsStart
+    \item Runs a scheduled R, Python and SQLite pipeline on GitHub Actions with automated delivery, reproducible model selection, and a stored decision chain and TreeSHAP attribution for every prediction.
+    \item Blends sequential, Poisson-scoreline and gradient-boosted models with market odds as a separate expert, using temperature calibration and negative-binomial simulation.
+    \item Records 63.8\% accuracy, 0.6395 log loss and 0.2240 Brier over 596 games, holds margin error level with the market line, and reaches 70.4\% where it most disagrees with the market.
+  \CVBulletsEnd
+}

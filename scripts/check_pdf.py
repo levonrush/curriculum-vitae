@@ -296,7 +296,7 @@ def inspect_urls(path: Path, result: Result) -> None:
             result.error(f"malformed email URL annotation: {url}")
         elif parsed.scheme == "tel" and not re.fullmatch(r"\+[0-9]{8,15}", parsed.path):
             result.error(f"malformed telephone URL annotation: {url}")
-    expected_count = 4 if "cover_letter" in path.name.lower() else 7
+    expected_count = 5 if "cover_letter" in path.name.lower() else 8
     if len(urls) != expected_count:
         result.error(f"expected {expected_count} URL annotations, found {len(urls)}")
     result.note(f"{len(urls)} URL annotation(s)")

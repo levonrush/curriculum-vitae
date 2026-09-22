@@ -8,8 +8,19 @@
 
 \newcommand{\PhDEntryCompact}{\PhDEntry}
 
+% Sport-facing variant: the doctorate is a credential here rather than the
+% pitch, so it carries one line of method and no benchmark detail.
+\newcommand{\PhDEntrySport}{%
+  \Role{Doctor of Philosophy, Computer Science}{University of Newcastle}{Learning across sampling regimes in water monitoring}{Ongoing}
+  \CVBulletsStart
+    \item Builds generative sequence models that reconstruct plausible high-frequency histories from sparse totals, and examines transfer between data collected on incompatible sampling regimes.
+  \CVBulletsEnd
+}
+
 \newcommand{\SelectedResearchOutputs}{%
   {\fontsize{9.4}{12.1}\selectfont\RaggedRight
+    \textbf{Rush, L.}, Saleh, K., Brown, S., Hiles, I., \& Mendes, A. (2026). Reconstructing residential daily water use from manual-meter totals. \textit{Australasian Data Science and Machine Learning Conference (AusDM)}, Sydney, 2--4 December 2026. Accepted.\par
+    \vspace{2.2pt}
     Lee, R. R. P., Douglas, A., \textbf{Rush, L. D.}, \& Lowes, L. (2026). Improving multidisciplinary communication through daily preoperative team huddles: A quality improvement initiative in Australian operating theatres. \textit{Perioperative Care and Operating Room Management, 42}, 100595. \href{https://doi.org/10.1016/j.pcorm.2025.100595}{doi:10.1016/j.pcorm.2025.100595}\par
     \vspace{2.2pt}
     Warburton, T. M., \textbf{Rush, L. D.}, et al. (2023). The impact of homelessness, substance use, and mental illness on surgical inpatient outcomes in Australia. \textit{Asia Pacific Journal of Public Health, 35}(5), 335--341. \href{https://doi.org/10.1177/10105395231175563}{doi:10.1177/10105395231175563}\par
@@ -17,6 +28,17 @@
     \textbf{Rush, L.} (2026). \textit{From projects to platform: Rising mains ML case study}. Conference presentation, Ozwater'26, Australian Water Association, Brisbane.\par
     \vspace{2.2pt}
     \textbf{Open-source system:} \href{https://github.com/levonrush/footy-tipper}{Footy Tipper} --- an R, Python and SQLite prediction and calibrated-simulation pipeline with scheduled GitHub Actions and automated email and web delivery.\par}
+}
+
+\newcommand{\SelectedResearchOutputsSport}{%
+  {\fontsize{9.4}{12.1}\selectfont\RaggedRight
+    \textbf{Rush, L.}, Saleh, K., Brown, S., Hiles, I., \& Mendes, A. (2026). Reconstructing residential daily water use from manual-meter totals. \textit{Australasian Data Science and Machine Learning Conference (AusDM)}, Sydney, 2--4 December 2026. Accepted.\par
+    \vspace{2.2pt}
+    Lee, R. R. P., Douglas, A., \textbf{Rush, L. D.}, \& Lowes, L. (2026). Improving multidisciplinary communication through daily preoperative team huddles: A quality improvement initiative in Australian operating theatres. \textit{Perioperative Care and Operating Room Management, 42}, 100595. \href{https://doi.org/10.1016/j.pcorm.2025.100595}{doi:10.1016/j.pcorm.2025.100595}\par
+    \vspace{2.2pt}
+    Warburton, T. M., \textbf{Rush, L. D.}, et al. (2023). The impact of homelessness, substance use, and mental illness on surgical inpatient outcomes in Australia. \textit{Asia Pacific Journal of Public Health, 35}(5), 335--341. \href{https://doi.org/10.1177/10105395231175563}{doi:10.1177/10105395231175563}\par
+    \vspace{2.2pt}
+    \textbf{Rush, L.} (2026). \textit{From projects to platform: Rising mains ML case study}. Conference presentation, Ozwater'26, Australian Water Association, Brisbane.\par}
 }
 
 \newcommand{\ResearchThemes}{%

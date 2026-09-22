@@ -30,6 +30,7 @@ VARIANTS = {
     "applied": ("applied_scientist", "Applied_Scientist"),
     "platform": ("ml_platform", "ML_Platform"),
     "research": ("research_engineer", "Research_Engineer"),
+    "football": ("football_intelligence", "Football_Intelligence"),
 }
 VARIANT_ALIASES = {
     **VARIANTS,
@@ -39,11 +40,15 @@ VARIANT_ALIASES = {
     "ml_platform": VARIANTS["platform"],
     "research-engineer": VARIANTS["research"],
     "research_engineer": VARIANTS["research"],
+    "football-intelligence": VARIANTS["football"],
+    "football_intelligence": VARIANTS["football"],
+    "sport": VARIANTS["football"],
 }
 VARIANT_DESCRIPTIONS = {
     "applied": "balanced; best general choice",
     "platform": "platforms, governed delivery, and enablement",
     "research": "research, PhD, and uncertainty",
+    "football": "sport, club data engineering, and analytics leadership",
 }
 CORE_TOOLS = (
     "make",
@@ -84,6 +89,11 @@ EVIDENCE_OPTIONS = {
         "Infrastructure and utilities",
         r"\InfrastructureUtilitiesEvidence",
         "reliability, water security, governance, and engineering decisions",
+    ),
+    "6": (
+        "Sports analytics",
+        r"\SportsAnalyticsEvidence",
+        "club data engineering, automated reporting, and calibrated prediction",
     ),
 }
 REQUIRED_COVER_FIELDS = (
@@ -792,7 +802,13 @@ class CVApplication:
                 self._say("  b  Back")
                 selected = self._choice(
                     "Choose",
-                    {"1": "applied", "2": "platform", "3": "research", "b": "back"},
+                    {
+                        "1": "applied",
+                        "2": "platform",
+                        "3": "research",
+                        "4": "football",
+                        "b": "back",
+                    },
                     default="1",
                 )
                 if selected == "back":
@@ -853,7 +869,7 @@ class CVApplication:
     def _simple_cover_fields(self, path: Path) -> dict[str, str] | None:
         content = path.read_text(encoding="utf-8")
         fields = self._extract_cover_fields(content)
-        allowed = set(REQUIRED_COVER_FIELDS) | {"EvidenceThree"}
+        allowed = set(REQUIRED_COVER_FIELDS) | {"EvidenceThree", "LetterSubtitle"}
         command = re.compile(
             r"^\\(?:newcommand|renewcommand)\s*\{\\([A-Za-z]+)\}\s*\{.*\}\s*$"
         )
