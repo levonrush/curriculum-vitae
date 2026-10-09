@@ -1,9 +1,6 @@
 \newcommand{\PhDEntry}{%
-  \Role{Doctor of Philosophy, Computer Science}{University of Newcastle}{Learning across sampling regimes in water monitoring}{Ongoing}
-  \CVBulletsStart
-    \item Developed a transformer-based constrained conditional-diffusion model that reconstructs multiple plausible daily water-consumption histories from sparse meter-read totals, enforcing non-negativity and exact mass balance throughout sampling.
-    \item Benchmarked point accuracy, CRPS, calibration and trajectory realism against deterministic, gradient-boosting and empirical baselines on held-out digital-meter observations; related work examines time-series domain adaptation across incompatible sampling regimes.
-  \CVBulletsEnd
+  \Role{Doctor of Philosophy, Computer Science}{University of Newcastle}{Moving water monitoring from periodic samples to real-time sensors}{Ongoing}
+  \RoleContext{Utilities are replacing periodic manual sampling with continuous sensors, and the switch puts decades of existing records at risk, including the verified evidence of rare failures such as recycled water reaching the drinking supply, which cannot be reproduced to collect again. The research reconstructs what a network did between readings: generative diffusion models anchored to the verified observations and constrained by the physics of the network, so the old records and the new sensors can be used together. The same physical residuals that keep a reconstruction plausible also make events visible to a detector. The first published method, accepted at AusDM 2026, turns meter reads taken a few times a year into day-by-day demand histories, validated against 569 digital meters across 53 supply zones.}
 }
 
 \newcommand{\PhDEntryCompact}{\PhDEntry}
@@ -11,9 +8,9 @@
 % Sport-facing variant: the doctorate is a credential here rather than the
 % pitch, so it carries one line of method and no benchmark detail.
 \newcommand{\PhDEntrySport}{%
-  \Role{Doctor of Philosophy, Computer Science}{University of Newcastle}{Learning across sampling regimes in water monitoring}{Ongoing}
+  \Role{Doctor of Philosophy, Computer Science}{University of Newcastle}{Moving water monitoring from periodic samples to real-time sensors}{Ongoing}
   \CVBulletsStart
-    \item Builds generative sequence models that reconstruct plausible high-frequency histories from sparse totals, and examines transfer between data collected on incompatible sampling regimes.
+    \item Protects drinking-water safety as utilities move to continuous sensing, keeping decades of manual records usable by the models that replace the old ones.
   \CVBulletsEnd
 }
 
@@ -42,7 +39,7 @@
 }
 
 \newcommand{\ResearchThemes}{%
-  \CapabilityLine{Sampling-regime transfer}{Domain adaptation when source and target observations have incompatible temporal structure.}
-  \CapabilityLine{Sparse-to-dense inference}{Constrained probabilistic reconstruction, uncertainty calibration and validation against digital-meter observations.}
-  \CapabilityLine{Operational research}{Explainability, physical constraints, sensor information gain and evaluation in a live infrastructure setting.}
+  \CapabilityLine{Monitoring transitions}{Keeping existing records and decision rules valid when an organisation replaces periodic manual checks with continuous sensing.}
+  \CapabilityLine{Recovering what was never measured}{Generative reconstruction of day-level history from verified totals, with uncertainty a user can act on.}
+  \CapabilityLine{Evidence for operators}{Physical plausibility, explanation and evaluation against held-out ground truth in a live infrastructure setting.}
 }

@@ -10,6 +10,7 @@ metadata. The hashes below identify the files used for the initial migration.
 | `Levon_CV_20251001.docx` | `ac94d47fef75830a1c8ac56e315e5d12b0a46ced42409e02a430570df970ae83` |
 | `Levon Rush - Cover Letter - TEMPLATE.docx` | `e20f0cdfff2c48c2e28e8ef15e9bda80a88019c5a14dfecc7c40de6b00ac8af7` |
 | Planning brief | `98ffbba91b5c1eede25fd383566911bb9f08e5396768d88f2784f1637137fcaf` |
+| Intelligent Networks ML Delivery Programme, v0.14 (7 October 2026) | supplied as text, not hashed |
 
 ## Migration decisions
 
@@ -18,5 +19,7 @@ metadata. The hashes below identify the files used for the initial migration.
 - The Word files are the editable historical content reference.
 - Referee names and telephone numbers are not migrated.
 - The former personal site and its domain email are not migrated.
-- Claims marked as under review, planned, first, commercial impact, or deployed
-  are omitted or qualified unless independently confirmed.
+- Claims marked as under review, planned, first, or deployed are omitted or
+  qualified unless independently confirmed.
+- The Intelligent Networks programme document is the source for the programme
+  scope, portfolio, investment and benefit figures now carried in the CV.

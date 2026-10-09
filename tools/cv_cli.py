@@ -30,7 +30,7 @@ VARIANTS = {
     "applied": ("applied_scientist", "Applied_Scientist"),
     "platform": ("ml_platform", "ML_Platform"),
     "research": ("research_engineer", "Research_Engineer"),
-    "football": ("football_intelligence", "Football_Intelligence"),
+    "leadership": ("leadership", "Leadership"),
 }
 VARIANT_ALIASES = {
     **VARIANTS,
@@ -40,15 +40,14 @@ VARIANT_ALIASES = {
     "ml_platform": VARIANTS["platform"],
     "research-engineer": VARIANTS["research"],
     "research_engineer": VARIANTS["research"],
-    "football-intelligence": VARIANTS["football"],
-    "football_intelligence": VARIANTS["football"],
-    "sport": VARIANTS["football"],
+    "lead": VARIANTS["leadership"],
+    "head": VARIANTS["leadership"],
 }
 VARIANT_DESCRIPTIONS = {
     "applied": "balanced; best general choice",
     "platform": "platforms, governed delivery, and enablement",
     "research": "research, PhD, and uncertainty",
-    "football": "sport, club data engineering, and analytics leadership",
+    "leadership": "head-of and manager roles: programme, team, and budget",
 }
 CORE_TOOLS = (
     "make",
@@ -806,7 +805,7 @@ class CVApplication:
                         "1": "applied",
                         "2": "platform",
                         "3": "research",
-                        "4": "football",
+                        "4": "leadership",
                         "b": "back",
                     },
                     default="1",

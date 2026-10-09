@@ -376,7 +376,7 @@ def validate_tex_usage(records: list[dict[str, object]]) -> list[str]:
         if re.search(r"\\(?:HunterLogo|NibLogo|UniversityLogo)\b", content):
             errors.append(f"{variant.name}: logos must be attached to organisation entries")
         if not re.search(
-            r"\\Hunter(?:Applied|Platform|Research|Intelligence)Experience\b", content
+            r"\\Hunter(?:Applied|Platform|Research|Intelligence|Leadership)Experience\b", content
         ):
             errors.append(f"{variant.name}: does not invoke the branded Hunter role")
         if not re.search(r"\\NibRecentExperience(?:Standard|Platform)\b", content):

@@ -6,20 +6,28 @@ cleared for external use.
 
 ## Hunter Water
 
-- Confirm which platform elements Levon owned, co-developed, or contributed to.
-- Classify each ML product and integration as production, pilot, research, or planned.
+- Programme scope, portfolio ownership, investment case and `hw_ml_utils` are now
+  recorded, sourced from the Intelligent Networks ML Delivery Programme.
+- Scale is recorded from public Hunter Water figures (600,000 people, 10,000 km of
+  mains, A$2.5 billion asset base) plus programme returns of A$0.86M a year and
+  A$2.2M over five years. Figures are rounded; delivery cost is not quoted, since
+  it is spend rather than outcome.
+- Decisions supported are recorded: pipe renewal, pump intervention, water-quality
+  response, demand analysis and chlorine dosing.
+- Individual product maturity still varies across released, in-delivery and research
+  work, so no bullet claims that all five are in operational use.
 - Confirm whether Buildkite and the term “feature store” are still current; both are omitted meanwhile.
-- Add disclosable scale: products, teams, users, collaborators, assets, sensors,
-  predictions, pipelines, data products, refresh cadence, or operational systems.
-- Identify the live decisions supported by each product and the groups consuming its outputs.
 - Confirm which product and operational-system names are cleared for external applications.
 
 ## nib
 
-- AWS SageMaker is confirmed as Soma Factory's compute platform; confirm its
-  adoption, products/users supported, and Levon’s precise ownership.
+- Soma Factory: Levon led the build, on AWS SageMaker. Confirm its adoption and the
+  products and users it supported if a figure is ever needed.
+- Outcome areas are confirmed: member retention and churn, marketing and
+  acquisition spend, and platform capability as the lasting contribution. The
+  magnitudes are not disclosed, so the bullets name what changed without
+  quantifying it. Reinforcement learning is no longer claimed.
 - Add experiment, mentoring, team, production-integration, or commercial-impact figures if supportable.
-- Confirm the scope of reinforcement-learning and language-model contributions.
 - Do not restore “first end-to-end production ML solution” without evidence.
 
 ## Sport
@@ -36,6 +44,10 @@ cleared for external use.
 ## Research and education
 
 - AusDM 2026 is now recorded as accepted; add the DOI or proceedings link once camera-ready is done.
+- PhD studies 2 and 3 are not started and the sensors await commissioning, so no
+  cross-connection detection result may be claimed. The CV says the research keeps
+  historical records usable through the transition, which is the confirmation
+  document's own significance statement, and quotes study 1 for numbers.
 - The preoperative-team-huddles paper was published in March 2026; recheck the
   remaining medical manuscripts labelled “under review” in October 2025.
 - Add PhD start or expected-completion dates only if useful (part-time, to 2030).
@@ -51,5 +63,8 @@ cleared for external use.
 - Hotmail remains the default address until a replacement is supplied.
 - LinkedIn is now included as au.linkedin.com/in/levon-rush.
 
-Never add exact savings, revenue, safety, public-health, or operational-impact
-claims without a supplied source and permission to disclose them.
+Programme figures come from the Intelligent Networks ML Delivery Programme
+(revision v0.14, 7 October 2026) and go in rounded. Supplier names, day rates,
+contract structures and product-level cost splits stay out; they add nothing for a
+reader deciding whether to interview. Never add savings, revenue, safety,
+public-health, or operational-impact claims that no supplied source supports.

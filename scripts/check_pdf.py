@@ -213,6 +213,7 @@ def inspect_text(path: Path, result: Result) -> None:
         for required in (
             "lead machine learning scientist",
             "hunter water",
+            "investment case",
             "nib health funds",
             "doctor of philosophy",
             "aws sagemaker",
