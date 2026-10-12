@@ -45,9 +45,13 @@ cleared for external use.
 
 - AusDM 2026 is now recorded as accepted; add the DOI or proceedings link once camera-ready is done.
 - PhD studies 2 and 3 are not started and the sensors await commissioning, so no
-  cross-connection detection result may be claimed. The CV says the research keeps
-  historical records usable through the transition, which is the confirmation
-  document's own significance statement, and quotes study 1 for numbers.
+  cross-connection detection result may be claimed. The CV presents synthetic
+  bridging as a new approach to domain adaptation across sampling regimes, using
+  physics-informed conditional diffusion. The overall contribution is knowledge
+  transfer from historical datasets into new monitoring regimes, with water
+  monitoring as the case study. The transformer is the diffusion
+  model's backbone, not a separate method; the proposed detection role of
+  physical residuals remains a research question.
 - The preoperative-team-huddles paper was published in March 2026; recheck the
   remaining medical manuscripts labelled “under review” in October 2025.
 - Add PhD start or expected-completion dates only if useful (part-time, to 2030).
