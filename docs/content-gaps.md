@@ -8,10 +8,15 @@ cleared for external use.
 
 - Programme scope, portfolio ownership, investment case and `hw_ml_utils` are now
   recorded, sourced from the Intelligent Networks ML Delivery Programme.
-- Scale is recorded from public Hunter Water figures (600,000 people, 10,000 km of
-  mains, A$2.5 billion asset base) plus programme returns of A$0.86M a year and
-  A$2.2M over five years. Figures are rounded; delivery cost is not quoted, since
-  it is spend rather than outcome.
+- The CVs use the network's 600,000-person service area and the programme's
+  projected A$0.86M gross annual benefit at mature adoption. This includes
+  potential savings, avoided costs and staff capacity; it is not realised cash
+  savings. The supplied programme document also models A$2.2M five-year total
+  net benefit, including capacity; the CVs omit this second figure for clarity.
+- The programme text supplied on 12 October 2026 distinguishes development,
+  acceptance and use. Describe leadership of platform development and an initial
+  research-data handover underway, not a fully released platform or completed
+  research deployment. Executive approval is not established by this document.
 - Decisions supported are recorded: pipe renewal, pump intervention, water-quality
   response, demand analysis and chlorine dosing.
 - Individual product maturity still varies across released, in-delivery and research

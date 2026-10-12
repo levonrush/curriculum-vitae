@@ -381,7 +381,12 @@ def validate_tex_usage(records: list[dict[str, object]]) -> list[str]:
             errors.append(f"{variant.name}: does not invoke the branded Hunter role")
         if not re.search(r"\\NibRecentExperience(?:Standard|Platform)\b", content):
             errors.append(f"{variant.name}: does not invoke the branded recent experience")
-        if not re.search(r"\\EarlierExperience\b", content):
+        earlier_group = re.search(r"\\EarlierExperience\b", content)
+        grouped_roles = (
+            re.search(r"\\NibDigitalAnalystRole\b", content)
+            and re.search(r"\\StudentInformationRole\b", content)
+        )
+        if not (earlier_group or grouped_roles):
             errors.append(f"{variant.name}: does not invoke the branded earlier experience")
 
     cover = (ROOT / "src" / "cover_letter.tex").read_text(encoding="utf-8")

@@ -92,6 +92,8 @@ reference.
 
 ## CV variants
 
+- `leadership` (`cv open lead`) leads with programme, team, investment and
+  scientific leadership, retaining hands-on modelling as supporting depth.
 - `applied_scientist` is the balanced default: modelling, platform engineering,
   operational deployment, and technical leadership.
 - `ml_platform` prioritises governed delivery, reusable infrastructure,
@@ -104,6 +106,13 @@ and research entries rather than repeated capability summaries. Employer names
 always remain readable text. The decorative marks use their official supplied
 colours (including the University's black-and-white primary mark) alongside
 those names.
+
+All four CVs share `src/design_cv.tex`: true-size body typography, slate square
+bullets and consistent title styling. Bold is reserved for titles and labels,
+never emphasis within prose. Selected works use title-led entries with quieter
+publication metadata. Applied, platform and leadership group all nib roles on
+page one; research gives the doctorate earlier prominence. Cover-letter styling
+remains separate.
 
 ## Updating content
 

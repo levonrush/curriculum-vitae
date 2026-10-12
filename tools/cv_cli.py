@@ -452,6 +452,9 @@ class CVApplication:
         entry = self.root / "src" / "cv.tex"
         if entry.is_file():
             files.append(entry)
+        design = self.root / "src" / "design_cv.tex"
+        if design.is_file():
+            files.append(design)
         content = self.root / "src" / "content"
         if content.is_dir():
             files.extend(item for item in content.rglob("*.tex") if item.is_file())

@@ -1,0 +1,96 @@
+% Shared CV typography: retain the palette, marks and single-column reading
+% order, with actual-size IBM Plex and emphasis on titles, never within prose.
+\setmainfont[
+  Path=assets/fonts/ibm-plex-sans/,
+  Extension=.ttf,
+  UprightFont=*-Regular,
+  ItalicFont=*-Italic,
+  BoldFont=*-SemiBold,
+  BoldItalicFont=*-SemiBoldItalic,
+  Scale=1
+]{IBMPlexSans}
+
+\renewcommand{\CVHeader}[3]{%
+  {\fontsize{27}{29}\selectfont\bfseries\color{NameColour}\MakeUppercase{\IdentityName}\par}
+  \vspace{3pt}
+  {\fontsize{12}{15}\selectfont\bfseries\color{SectionColour}#1\par}
+  \vspace{1pt}
+  {\fontsize{9.3}{12}\selectfont\color{QuietColour}#2\par}
+  \vspace{6pt}
+  {\fontsize{9.2}{12}\selectfont\ContactLine\par}
+  {\fontsize{9.2}{12}\selectfont\LinkLine\par}
+  \vspace{9pt}
+  {\fontsize{10}{13.5}\selectfont\RaggedRight #3\par}
+  \vspace{3pt}
+}
+
+\renewcommand{\Section}[1]{%
+  \Needspace{4\baselineskip}
+  \addvspace{12pt}
+  {\fontsize{9.8}{12}\selectfont\bfseries\color{SectionColour}\MakeUppercase{#1}\par}
+  \vspace{4pt}
+  {\color{RuleColour}\hrule height 0.4pt}
+  \vspace{7pt}
+}
+
+\renewcommand{\EmployerHeader}[2]{%
+  \Needspace{5\baselineskip}
+  {\fontsize{12}{15}\selectfont\bfseries\color{NameColour}%
+    \noindent\makebox[\linewidth][l]{%
+      \CenteredInlineBox{#1}\hfill\CenteredInlineBox{#2}}\par}
+  \vspace{4pt}
+}
+
+\renewcommand{\EmployerRole}[3]{%
+  \Needspace{3\baselineskip}
+  {\fontsize{10}{13}\selectfont\bfseries #1\hfill
+    \fontsize{9}{12}\selectfont\mdseries\color{QuietColour}#3\par}
+  \ifstrempty{#2}{}{%
+    {\fontsize{9.2}{12}\selectfont\color{SectionColour}#2\par}}%
+}
+
+\renewcommand{\Role}[4]{%
+  \Needspace{4\baselineskip}
+  {\fontsize{10}{13}\selectfont\bfseries #1\hfill
+    \fontsize{9}{12}\selectfont\mdseries\color{QuietColour}#4\par}
+  \vspace{1pt}
+  {\fontsize{9.2}{12}\selectfont\color{SectionColour}#2%
+    \ifstrempty{#3}{}{\enspace\textcolor{RuleColour}{|}\enspace #3}\par}
+  \vspace{4pt}
+}
+
+\renewcommand{\RoleContext}[1]{%
+  {\fontsize{10.2}{13.8}\selectfont\RaggedRight #1\par}%
+}
+
+\renewcommand{\RoleGap}{\par\addvspace{8pt}}
+\renewcommand{\EmployerGap}{\par\addvspace{13pt}}
+\renewcommand{\CVBulletsStart}{%
+  \begin{list}{\textcolor{SectionColour}{\raisebox{0.35ex}{\rule{1.8pt}{1.8pt}}}}{%
+    \setlength{\leftmargin}{4.2mm}%
+    \setlength{\labelwidth}{2.2mm}%
+    \setlength{\labelsep}{2mm}%
+    \setlength{\itemsep}{4pt}%
+    \setlength{\topsep}{4pt}%
+    \setlength{\parsep}{0pt}%
+    \setlength{\partopsep}{0pt}%
+  }%
+  \fontsize{10}{13.5}\selectfont\RaggedRight
+}
+
+% Labels stay in the text stream; wrapped detail has a small hanging indent.
+\renewcommand{\CapabilityLine}[2]{%
+  \Needspace{2\baselineskip}
+  {\fontsize{9.4}{12.2}\selectfont\RaggedRight
+    \hangindent=3mm\hangafter=1
+    \textbf{#1}\enspace #2\par}
+  \vspace{3pt}
+}
+
+\newcommand{\PublicationEntry}[2]{%
+  \Needspace{3\baselineskip}
+  {\fontsize{9.5}{12.2}\selectfont\RaggedRight\bfseries #1\par}
+  \vspace{1pt}
+  {\fontsize{9}{11.5}\selectfont\RaggedRight\color{QuietColour}#2\par}
+  \vspace{6pt}
+}

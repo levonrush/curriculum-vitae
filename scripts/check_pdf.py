@@ -229,7 +229,7 @@ def inspect_text(path: Path, result: Result) -> None:
                 "doctoral research",
                 "previous experience",
                 "earlier experience",
-                "selected outputs",
+                "selected works",
                 "education",
                 "technical capabilities",
                 "community leadership",
@@ -238,9 +238,8 @@ def inspect_text(path: Path, result: Result) -> None:
             expected_order = [
                 "current experience",
                 "previous experience",
-                "earlier experience",
                 "doctoral research",
-                "selected outputs",
+                "selected works",
                 "education",
                 "technical capabilities",
                 "community leadership",
@@ -259,6 +258,21 @@ def inspect_text(path: Path, result: Result) -> None:
             "university of newcastle",
             "student information assistant",
         ]
+        if "research_engineer" not in path.name.lower():
+            # These layouts group every nib role beneath one employer heading.
+            # Research instead gives the doctorate earlier prominence.
+            employment_order = [
+                "current experience",
+                "hunter water",
+                "lead machine learning scientist",
+                "previous experience",
+                "nib health funds",
+                "lead data scientist",
+                "digital data scientist",
+                "digital analyst",
+                "university of newcastle",
+                "student information assistant",
+            ]
         # Every Poppler extraction mode must retain the same single-column
         # section order and employer-to-role hierarchy.
         for mode_name, text in (("default", plain), ("raw", raw), ("layout", layout)):
