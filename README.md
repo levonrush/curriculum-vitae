@@ -128,7 +128,9 @@ because they contain third-party personal data and hidden Word metadata.
 
 ## Logos and third-party marks
 
-Every CV includes official organisation marks. They are cached under
+Use the regular logo-enabled template for every CV, including tailored variants.
+The official organisation marks are required assets: fetch and verify them rather
+than omitting them when the local cache is missing. They are cached under
 `.vendor/logos/` and ignored by Git. Their source URLs, hashes, display
 constraints, and ownership notices are tracked in `assets/logo_sources.json`
 and `THIRD_PARTY_NOTICES.md`.
@@ -141,17 +143,15 @@ cv assets fetch
 
 Setup fetches and verifies every required mark automatically; the advanced
 `cv assets` commands inspect or repair that cache. The marks identify factual
-employment and education relationships. Confirm any required brand approval
-before external distribution, and do not distribute a CV containing them when
-approval is required but has not been obtained.
+employment and education relationships and are part of the normal CV layout.
 
 The marks are optically balanced at roughly 6 mm high at the far right of
 dedicated company headers above the relevant roles rather than in page headers.
 This requested treatment is below nib's and the University's published print
 minima and is not a claim of brand compliance. The University's approved
 horizontal artwork remains staff-gated, so the exact public square mark is used
-rather than a third-party recreation. See `THIRD_PARTY_NOTICES.md` before
-distributing any CV PDF.
+rather than a third-party recreation. `THIRD_PARTY_NOTICES.md` records ownership,
+licensing, source guidance, and known size differences.
 
 ## Quality checks
 

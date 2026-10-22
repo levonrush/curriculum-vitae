@@ -2,7 +2,7 @@
 
 This repository uses third-party fonts and caches third-party organisation marks for local PDF builds. Fonts are committed under their open licence. Organisation marks are required document assets, are kept under `.vendor/logos/`, and should not be redistributed from this repository.
 
-The presence of a mark identifies a factual employment or education relationship. It does not imply endorsement of this CV, its contents, or its author. Every CV build includes these marks. Before sending a generated document, confirm that the proposed use is permitted and still follows the current owner guidance; do not distribute it when required approval has not been obtained.
+The presence of a mark identifies a factual employment or education relationship. It does not imply endorsement of this CV, its contents, or its author. Use the regular logo-enabled template for every CV, including tailored variants; fetch missing cached marks rather than omitting them. The notices below retain source guidance and ownership information without changing that template default.
 
 ## IBM Plex Sans
 
@@ -21,7 +21,7 @@ The four unmodified TrueType files may be used and embedded under the OFL. “Pl
 - Usage guide: [Hunter Water Brand Quick Guide](https://hunter-water.imgix.net/assets/src/uploads/images/Brand-Guidelines/HW-Brand-Quick-Guide.pdf?ixlib=php-4.1.0&rasterize-bypass=1).
 - Selected asset: the unmodified high-resolution `HW Logos - All/HW Logo_Solid_Spot.png` from the official logo suite.
 
-Hunter Water asks users to use the standalone logo, retain the original colour relationships and proportions, and leave clear space equal to the width of “HU”. The CV displays the unmodified mark 6.3 mm high immediately after the company name. Its [copyright and disclaimer](https://www.hunterwater.com.au/copyright-and-disclaimer) permits dealing with website material when the copyright notice is included, but requires written permission for modification, advertising or products for sale. Confirm the current terms for the intended CV distribution.
+Hunter Water asks users to use the standalone logo, retain the original colour relationships and proportions, and leave clear space equal to the width of “HU”. The CV displays the unmodified mark 6.3 mm high immediately after the company name. Its [copyright and disclaimer](https://www.hunterwater.com.au/copyright-and-disclaimer) permits dealing with website material when the copyright notice is included, but requires written permission for modification, advertising or products for sale.
 
 ## nib
 
@@ -29,7 +29,7 @@ Hunter Water asks users to use the standalone logo, retain the original colour r
 - Official source and usage guide: [nib Partner Brand Toolkit](https://www.nib.com.au/travel-insurance/partners/brand-toolkit).
 - Selected asset: `Print (CMYK)/PDF/nib_CMYK_Coated_PrimaryLogo_TrueGreen.pdf` from the official print pack.
 
-The toolkit sets a 25 mm minimum print width, requires clear space equal to the width of the letter “i”, and says the symbol and wordmark must remain True Green or Bright Green. The compact CV layout displays the unmodified mark 5.6 mm high (approximately 13.69 mm wide) after the company name above the nib roles, which is below that print minimum. The toolkit also says content using the supplied branding must be approved by nib before publication. Treat the generated PDF as a local preview unless nib approves the use, and do not distribute it when that approval has not been obtained.
+The toolkit sets a 25 mm minimum print width, requires clear space equal to the width of the letter “i”, and says the symbol and wordmark must remain True Green or Bright Green. The compact CV layout displays the unmodified mark 5.6 mm high (approximately 13.69 mm wide) after the company name above the nib roles, which is below that print minimum. The toolkit also says content using the supplied branding must be approved by nib before publication.
 
 ## The University of Newcastle, Australia
 
@@ -39,7 +39,7 @@ The toolkit sets a 25 mm minimum print width, requires clear space equal to the 
 - Retrieval fallback: [unmodified 4 July 2026 Internet Archive capture](https://web.archive.org/web/20260704093125id_/https://www.newcastle.edu.au/__data/assets/file/0011/661727/uon-logo-square.svg).
 - Selected asset: the official black-and-white square SVG rasterised at 1200 × 1200 pixels without cropping, recolouring, or changing proportions.
 
-The published brand-identity guidance sets a 40 mm minimum width for this square mark. The University’s requested alternative/restricted-space horizontal artwork is not exposed through its public asset URL; the approved asset library is restricted to staff sign-in. The compact CV layout uses the exact public square mark at 6.3 mm after the company name above the University role rather than substituting artwork from a third-party logo site. This is intentionally below the published minimum and is documented as a layout preview, not compliant external artwork. Its current [Marketing, Communications and Reputation Policy](https://policies.newcastle.edu.au/document/view-current.php?id=319&version=2) requires brand use to follow the University’s guidelines and restricts misleading, disreputable, and resale uses. The public [signage guidance](https://www.newcastle.edu.au/__data/assets/pdf_file/0010/826480/2022-University-of-Newcastle-Signage-Guidelines-Version-1.pdf) also directs logo users to contact Marketing and Communications for guidance and approval. Confirm approval before external distribution, and do not distribute the generated CV when that approval has not been obtained.
+The published brand-identity guidance sets a 40 mm minimum width for this square mark. The University’s requested alternative/restricted-space horizontal artwork is not exposed through its public asset URL; the approved asset library is restricted to staff sign-in. The compact CV layout uses the exact public square mark at 6.3 mm after the company name above the University role rather than substituting artwork from a third-party logo site. This is intentionally below the published minimum and is not a claim of brand compliance. Its current [Marketing, Communications and Reputation Policy](https://policies.newcastle.edu.au/document/view-current.php?id=319&version=2) requires brand use to follow the University’s guidelines and restricts misleading, disreputable, and resale uses. The public [signage guidance](https://www.newcastle.edu.au/__data/assets/pdf_file/0010/826480/2022-University-of-Newcastle-Signage-Guidelines-Version-1.pdf) also directs logo users to contact Marketing and Communications for guidance and approval.
 
 ## Integrity manifest
 
