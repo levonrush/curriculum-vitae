@@ -119,6 +119,8 @@ remains separate.
 Shared facts and prose live under `src/content/`; variant wrappers under
 `variants/` select and order that material. Contact details and role dates are
 centralised so that they are not independently copied between documents.
+The shared header in `src/commands.tex` includes labelled GitHub, Medium,
+LinkedIn and ResearchGate links in every CV and cover letter.
 
 Before strengthening impact language, review [the content-gap checklist](docs/content-gaps.md).
 Do not invent metrics or promote planned/pilot work to production. The original

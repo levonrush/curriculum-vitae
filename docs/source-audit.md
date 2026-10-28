@@ -23,3 +23,12 @@ metadata. The hashes below identify the files used for the initial migration.
   qualified unless independently confirmed.
 - The Intelligent Networks programme document is the source for the programme
   scope, portfolio, investment and benefit figures now carried in the CV.
+
+## ResearchGate profile
+
+On 22 October 2026, Levon supplied
+[his ResearchGate profile](https://www.researchgate.net/profile/Levon-Rush)
+for inclusion in the CVs and related documents. It is linked from the shared
+CV and cover-letter header. The profile could not be fetched during this
+update, so no publication, affiliation or citation-count claims were added
+from it.
