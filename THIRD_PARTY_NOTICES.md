@@ -14,6 +14,16 @@ The presence of a mark identifies a factual employment or education relationship
 
 The four unmodified TrueType files may be used and embedded under the OFL. “Plex” is a Reserved Font Name.
 
+## Header icons — Font Awesome Free
+
+- Creator: Fonticons, Inc.; Font Awesome Free version 6.7.2.
+- Source: [Font Awesome SVG icons](https://github.com/FortAwesome/Font-Awesome/tree/6.7.2/svgs).
+- Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); upstream notice copied to `assets/icons/fontawesome/LICENSE.txt`.
+- Icons: `solid/location-dot`, `solid/phone`, `solid/envelope`, `brands/github`, `brands/medium`, `brands/linkedin-in`, and `brands/researchgate`.
+- The original SVGs and their SHA-256 hashes are stored in `assets/icons/fontawesome/`. `scripts/build_header_icons.py` converts their paths, including arcs, to curves in `paths.tex` for native vector rendering by PGF, scaled and coloured to match adjacent header text. No icon font is embedded. Regenerating the checked-in paths requires Python's `fontTools`; ordinary document builds do not.
+
+Brand icons identify profile destinations; their trademarks belong to their respective owners.
+
 ## Hunter Water
 
 - Owner and copyright notice: **© Hunter Water Corporation**.

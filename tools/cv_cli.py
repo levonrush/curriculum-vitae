@@ -437,7 +437,7 @@ class CVApplication:
             candidate = self.root / name
             if candidate.is_file():
                 files.append(candidate)
-        for directory in ("assets/fonts",):
+        for directory in ("assets/fonts", "assets/icons"):
             base = self.root / directory
             if base.is_dir():
                 files.extend(item for item in base.rglob("*") if item.is_file())

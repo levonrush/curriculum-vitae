@@ -121,6 +121,9 @@ Shared facts and prose live under `src/content/`; variant wrappers under
 centralised so that they are not independently copied between documents.
 The shared header in `src/commands.tex` includes labelled GitHub, Medium,
 LinkedIn and ResearchGate links in every CV and cover letter.
+Contact details and profile links have matching-colour vector icons, with
+readable text labels retained. Doctoral research uses the same University
+name-and-logo header as the employment entries.
 
 Before strengthening impact language, review [the content-gap checklist](docs/content-gaps.md).
 Do not invent metrics or promote planned/pilot work to production. The original
@@ -177,6 +180,7 @@ system.
 
 - Python 3.10 or newer, standard library only for the CLI.
 - XeLaTeX and `latexmk` (TeX Live 2025 is the tested baseline).
+- PGF with its `svg.path` library for the vendored header icons.
 - GNU Make.
 - Poppler's `pdfinfo` for the guided cover-letter page check; the remaining
   Poppler command-line tools are used by the full document checks.

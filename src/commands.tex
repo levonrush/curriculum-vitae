@@ -10,22 +10,37 @@
 \newcommand{\IdentityLinkedIn}{linkedin.com/in/levon-rush}
 \newcommand{\IdentityResearchGate}{www.researchgate.net/profile/Levon-Rush}
 
+% Decorative vector paths inherit the adjacent text/link colour and add no
+% icon-font characters to copied text or ATS extraction.
+\newcommand{\HeaderIconShape}[2]{%
+  \raisebox{-0.1em}{\resizebox{!}{0.85em}{%
+    \begin{pgfpicture}
+      \pgftransformyscale{-1}
+      \pgfpathrectangle{\pgfpointorigin}{\pgfpoint{#1pt}{512pt}}
+      \pgfusepath{use as bounding box}
+      \pgfpathsvg{#2}
+      \pgfusepath{fill}
+    \end{pgfpicture}}}%
+  \nobreak\hspace{0.35em}%
+}
+\input{assets/icons/fontawesome/paths.tex}
+
 \newcommand{\ContactLine}{%
-  \IdentityLocation
+  \LocationIcon\IdentityLocation
   \enspace\textcolor{RuleColour}{|}\enspace
-  \href{tel:\IdentityPhoneLink}{\IdentityPhoneDisplay}%
+  \href{tel:\IdentityPhoneLink}{\PhoneIcon\IdentityPhoneDisplay}%
   \enspace\textcolor{RuleColour}{|}\enspace
-  \href{mailto:\IdentityEmail}{\IdentityEmailDisplay}%
+  \href{mailto:\IdentityEmail}{\EmailIcon\IdentityEmailDisplay}%
 }
 
 \newcommand{\LinkLine}{%
-  \href{https://\IdentityGitHub}{GitHub}%
+  \href{https://\IdentityGitHub}{\GitHubIcon GitHub}%
   \enspace\textcolor{RuleColour}{|}\enspace
-  \href{https://\IdentityMedium}{Medium}%
+  \href{https://\IdentityMedium}{\MediumIcon Medium}%
   \enspace\textcolor{RuleColour}{|}\enspace
-  \href{https://au.\IdentityLinkedIn}{LinkedIn}%
+  \href{https://au.\IdentityLinkedIn}{\LinkedInIcon LinkedIn}%
   \enspace\textcolor{RuleColour}{|}\enspace
-  \href{https://\IdentityResearchGate}{ResearchGate}%
+  \href{https://\IdentityResearchGate}{\ResearchGateIcon ResearchGate}%
 }
 
 \newcommand{\CVHeader}[3]{%
